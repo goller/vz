@@ -14,6 +14,8 @@ import (
 	"github.com/rs/xid"
 )
 
+type NewConnectionFn func(conn *VirtioSocketConnection, err error)
+
 // SocketDeviceConfiguration for a socket device configuration.
 type SocketDeviceConfiguration interface {
 	NSObject
@@ -63,7 +65,7 @@ type VirtioSocketDevice struct {
 	pointer
 }
 
-var connectionHandlers = map[string]func(conn *VirtioSocketConnection, err error){}
+var connectionHandlers = map[string]NewConnectionFn{}
 
 func newVirtioSocketDevice(ptr, dispatchQueue unsafe.Pointer) *VirtioSocketDevice {
 	id := xid.New().String()
@@ -115,7 +117,7 @@ func connectionHandler(connPtr, errPtr unsafe.Pointer, cid *C.char) {
 //
 // For a successful connection, this method sets the sourcePort property of the resulting VZVirtioSocketConnection object to a random port number.
 // see: https://developer.apple.com/documentation/virtualization/vzvirtiosocketdevice/3656677-connecttoport?language=objc
-func (v *VirtioSocketDevice) ConnectToPort(port uint32, fn func(conn *VirtioSocketConnection, err error)) {
+func (v *VirtioSocketDevice) ConnectToPort(port uint32, fn NewConnectionFn) {
 	connectionHandlers[v.id] = fn
 	cid := charWithGoString(v.id)
 	defer cid.Free()
