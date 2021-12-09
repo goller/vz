@@ -7,8 +7,10 @@ package vz
 */
 import "C"
 import (
+	"fmt"
 	"io"
 	"net"
+	"os"
 	"runtime"
 	"sync"
 	"syscall"
@@ -288,9 +290,26 @@ func (v *VirtioSocketDevice) Listen(port uint32) *Listener {
 	return listener
 }
 
-func (l *Listener) Accept() (*VirtioSocketConnection, error) {
+func virtioSocketConnectionToConn(conn *VirtioSocketConnection) (net.Conn, error) {
+	osFile := os.NewFile(conn.FileDescriptor(), fmt.Sprintf("vsock://2:%d", conn.DestinationPort()))
+	if osFile == nil {
+		return nil, fmt.Errorf("invalid file descriptor")
+	}
+	netConn, err := net.FileConn(osFile)
+	if err != nil {
+		return nil, err
+	}
+	return &Conn{
+		Conn:       netConn,
+		localAddr:  &Addr{Host, conn.DestinationPort()},
+		remoteAddr: &Addr{cidVMPlaceHolder, conn.SourcePort()},
+	}, nil
+}
+
+func (l *Listener) Accept() (net.Conn, error) {
 	conn := <-l.incomingConns
-	return conn, nil
+
+	return virtioSocketConnectionToConn(conn)
 }
 
 // Close closes the listener.
@@ -301,5 +320,69 @@ func (l *Listener) Close() error {
 
 // Addr returns the listener's network address.
 func (l *Listener) Addr() net.Addr {
-	return nil
+	return &Addr{
+		CID:  Host,
+		Port: l.port,
+	}
+}
+
+const (
+	// Hypervisor specifies that a socket should communicate with the hypervisor
+	// process.
+	Hypervisor = 0x0
+
+	// Host specifies that a socket should communicate with processes other than
+	// the hypervisor on the host machine.
+	Host = 0x2
+
+	// cidReserved is a reserved context ID that is no longer in use,
+	// and cannot be used for socket communications.
+	cidReserved = 0x1
+
+	// virtualization.framework implementation of vsock does expose CIDs
+	// use a dummy one to indicate the Addr points to a virtual machine
+	cidVMPlaceHolder = 0xffffffff
+)
+
+// The Addr type implements net.Addr
+type Addr struct {
+	CID  uint32
+	Port uint32
+}
+
+func (a *Addr) Network() string {
+	return "vsock"
+}
+
+// String returns a human-readable representation of Addr, and indicates if
+// CID is meant to be used for a hypervisor, host, VM, etc.
+func (a *Addr) String() string {
+	var host string
+
+	switch a.CID {
+	case Hypervisor:
+		host = fmt.Sprintf("hypervisor(%d)", a.CID)
+	case cidReserved:
+		host = fmt.Sprintf("reserved(%d)", a.CID)
+	case Host:
+		host = fmt.Sprintf("host(%d)", a.CID)
+	default:
+		host = "vm"
+	}
+
+	return fmt.Sprintf("%s:%d", host, a.Port)
+}
+
+type Conn struct {
+	net.Conn
+	localAddr  *Addr
+	remoteAddr *Addr
+}
+
+func (conn *Conn) LocalAddr() net.Addr {
+	return conn.localAddr
+}
+
+func (conn *Conn) RemoteAddr() net.Addr {
+	return conn.remoteAddr
 }
