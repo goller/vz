@@ -8,6 +8,7 @@ package vz
 import "C"
 import (
 	"io"
+	"net"
 	"runtime"
 	"syscall"
 	"unsafe"
@@ -245,5 +246,44 @@ func (v *VirtioSocketConnection) FileDescriptor() uintptr {
 
 func (v *VirtioSocketConnection) Close() error {
 	C.VZVirtioSocketConnection_close(v.Ptr())
+	return nil
+}
+
+// VirtioSocketListener is a low-level type with a single instance, it will handle VM->host connection attempts for all ports
+// Listener is a high-level type implementing net.Listener
+type Listener struct {
+	port          uint32
+	incomingConns chan *VirtioSocketConnection
+}
+
+func (v *VirtioSocketDevice) Listen(port uint32) *Listener {
+	// for a given device, we should only use one instance of *VirtioSocketListener
+	listener := &Listener{
+		port:          port,
+		incomingConns: make(chan *VirtioSocketConnection, 1),
+	}
+	shouldAcceptConn := func(conn *VirtioSocketConnection) bool {
+		listener.incomingConns <- conn
+		return true
+	}
+
+	virtioSocketListener := NewVirtioSocketListener()
+	v.SetSocketListenerForPort(virtioSocketListener, port, shouldAcceptConn)
+	return listener
+}
+
+func (l *Listener) Accept() (*VirtioSocketConnection, error) {
+	conn := <-l.incomingConns
+	return conn, nil
+}
+
+// Close closes the listener.
+// Any blocked Accept operations will be unblocked and return errors.
+func (l *Listener) Close() error {
+	return nil
+}
+
+// Addr returns the listener's network address.
+func (l *Listener) Addr() net.Addr {
 	return nil
 }
