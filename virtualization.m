@@ -39,8 +39,14 @@ char *copyCString(NSString *nss)
 @implementation VZVirtioSocketListenerDelegateImpl
 - (BOOL)listener:(VZVirtioSocketListener *)listener shouldAcceptNewConnection:(VZVirtioSocketConnection *)connection fromSocketDevice:(VZVirtioSocketDevice *)socketDevice;
 {
-    // TODO(codehex): implement callback
-    return TRUE;
+    // ideally, there would be a way to hold some data in our delegate
+    // implementation which can directly be converted to a go object
+    // For now, we'll rely on a ptr -> go object map.
+    // May not be so easy, most likely need go 1.17 Handles, see
+    // https://zchee.github.io/golang-wiki/cgo/
+    // https://pkg.go.dev/cmd/cgo#hdr-Passing_pointers
+    // https://golang.design/research/cgo-handle/
+    return (BOOL)shouldAcceptNewConnectionHandler(connection, listener, socketDevice);
 }
 @end
 
