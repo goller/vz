@@ -10,6 +10,7 @@ import (
 	"io"
 	"net"
 	"runtime"
+	"sync"
 	"syscall"
 	"unsafe"
 
@@ -70,8 +71,10 @@ type VirtioSocketDevice struct {
 
 var connectionHandlers = map[string]NewConnectionFn{}
 
-// most likely needs to be protected by a mutex. Or maybe this belongs in the VM or device struct?
-var objcToGoListeners = map[unsafe.Pointer]*VirtioSocketListener{}
+var (
+	objcToGoListeners     = map[unsafe.Pointer]*VirtioSocketListener{}
+	objcToGoListenersLock = sync.RWMutex{}
+)
 
 func newVirtioSocketDevice(ptr, dispatchQueue unsafe.Pointer) *VirtioSocketDevice {
 	id := xid.New().String()
@@ -94,8 +97,12 @@ func newVirtioSocketDevice(ptr, dispatchQueue unsafe.Pointer) *VirtioSocketDevic
 //
 // see: https://developer.apple.com/documentation/virtualization/vzvirtiosocketdevice/3656679-setsocketlistener?language=objc
 func (v *VirtioSocketDevice) SetSocketListenerForPort(listener *VirtioSocketListener, port uint32, fn ShouldAcceptConnectionFn) {
+	objcToGoListenersLock.Lock()
 	objcToGoListeners[listener.Ptr()] = listener
+	objcToGoListenersLock.Unlock()
+	listener.acceptHandlersLock.Lock()
 	listener.acceptHandlers[port] = fn
+	listener.acceptHandlersLock.Unlock()
 	C.VZVirtioSocketDevice_setSocketListenerForPort(v.Ptr(), v.dispatchQueue, listener.Ptr(), C.uint32_t(port))
 }
 
@@ -103,8 +110,12 @@ func (v *VirtioSocketDevice) SetSocketListenerForPort(listener *VirtioSocketList
 //
 // see: https://developer.apple.com/documentation/virtualization/vzvirtiosocketdevice/3656678-removesocketlistenerforport?language=objc
 func (v *VirtioSocketDevice) RemoveSocketListenerForPort(listener *VirtioSocketListener, port uint32) {
+	objcToGoListenersLock.Lock()
 	delete(objcToGoListeners, listener.Ptr())
+	objcToGoListenersLock.Unlock()
+	listener.acceptHandlersLock.Lock()
 	delete(listener.acceptHandlers, port)
+	listener.acceptHandlersLock.Unlock()
 	C.VZVirtioSocketDevice_removeSocketListenerForPort(v.Ptr(), v.dispatchQueue, C.uint32_t(port))
 }
 
@@ -137,7 +148,9 @@ func newConnFromListener(connPtr unsafe.Pointer) (*VirtioSocketConnection, error
 
 //export shouldAcceptNewConnectionHandler
 func shouldAcceptNewConnectionHandler(connPtr unsafe.Pointer, listenerPtr unsafe.Pointer, devicePtr unsafe.Pointer) C.int {
+	objcToGoListenersLock.RLock()
 	listener, hasListener := objcToGoListeners[listenerPtr]
+	objcToGoListenersLock.RUnlock()
 	if !hasListener {
 		return 0
 	}
@@ -145,7 +158,9 @@ func shouldAcceptNewConnectionHandler(connPtr unsafe.Pointer, listenerPtr unsafe
 	if err != nil {
 		return 0
 	}
+	listener.acceptHandlersLock.RLock()
 	handler, hasHandler := listener.acceptHandlers[conn.DestinationPort()]
+	listener.acceptHandlersLock.RUnlock()
 	if !hasHandler {
 		return 0
 	}
@@ -174,7 +189,8 @@ func (v *VirtioSocketDevice) ConnectToPort(port uint32, fn NewConnectionFn) {
 //
 // see: https://developer.apple.com/documentation/virtualization/vzvirtiosocketlistener?language=objc
 type VirtioSocketListener struct {
-	acceptHandlers map[uint32]ShouldAcceptConnectionFn
+	acceptHandlers     map[uint32]ShouldAcceptConnectionFn
+	acceptHandlersLock sync.RWMutex
 	pointer
 }
 
