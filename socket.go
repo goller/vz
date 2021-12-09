@@ -9,6 +9,7 @@ import "C"
 import (
 	"io"
 	"runtime"
+	"syscall"
 	"unsafe"
 
 	"github.com/rs/xid"
@@ -118,13 +119,31 @@ func connectionHandler(connPtr, errPtr unsafe.Pointer, cid *C.char) {
 	}
 }
 
+func newConnFromListener(connPtr unsafe.Pointer) (*VirtioSocketConnection, error) {
+	conn := newVirtioSocketConnection(connPtr)
+	// not fully clear what the lifetime/ownership of the filedescriptor is in the .m code
+	// this might be a bad workaround for my lack of understanding
+	// after calling this, fileDescriptor needs to be closed in Close(),
+	// though golang will garbage collect open file descriptors if needed
+	newFd, err := syscall.Dup(int(conn.FileDescriptor()))
+	if err != nil {
+		return nil, err
+	}
+	conn.fileDescriptor = uintptr(newFd)
+
+	return conn, nil
+}
+
 //export shouldAcceptNewConnectionHandler
 func shouldAcceptNewConnectionHandler(connPtr unsafe.Pointer, listenerPtr unsafe.Pointer, devicePtr unsafe.Pointer) C.int {
 	listener, hasListener := objcToGoListeners[listenerPtr]
 	if !hasListener {
 		return 0
 	}
-	conn := newVirtioSocketConnection(connPtr)
+	conn, err := newConnFromListener(connPtr)
+	if err != nil {
+		return 0
+	}
 	handler, hasHandler := listener.acceptHandlers[conn.DestinationPort()]
 	if !hasHandler {
 		return 0
