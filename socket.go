@@ -174,6 +174,45 @@ func NewVirtioSocketListener(handler func(conn *VirtioSocketConnection, err erro
 	return listener
 }
 
+type Listener struct {
+	port          uint32
+	incomingConns chan dup
+}
+
+func Listen(v *VirtioSocketDevice, port uint32) *Listener {
+	// for a given device, we should only use one instance of *VirtioSocketListener
+	listener := &Listener{
+		port:          port,
+		incomingConns: make(chan dup, 1),
+	}
+	shouldAcceptConn := func(conn *VirtioSocketConnection, err error) {
+		listener.incomingConns <- dup{conn, err}
+	}
+
+	virtioSocketListener := NewVirtioSocketListener(shouldAcceptConn)
+	v.SetSocketListenerForPort(virtioSocketListener, port)
+	return listener
+}
+
+func (l *Listener) Accept() (net.Conn, error) {
+	dup := <-l.dupCh
+	return dup.conn, dup.err
+}
+
+// Addr returns the listener's network address.
+func (l *Listener) Addr() net.Addr {
+	return &Addr{
+		CID:  unix.VMADDR_CID_HOST,
+		Port: l.port,
+	}
+}
+
+func (l *Listener) Close() error {
+	// need to close incomingConns and cleanly exit the associated go func when this happens
+	// also need to disconnect from port
+	return nil
+}
+
 //export shouldAcceptNewConnectionHandler
 func shouldAcceptNewConnectionHandler(listenerPtr, connPtr, devicePtr unsafe.Pointer) C.BOOL {
 	_ = devicePtr // NOTO(codehex): Is this really required? How to use?
