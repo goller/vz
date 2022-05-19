@@ -154,6 +154,24 @@ func main() {
 	config.SetSocketDevicesVirtualMachineConfiguration([]vz.SocketDeviceConfiguration{
 		vsockDevice,
 	})
+
+	sharedPath := os.Getenv("SHARED_DIRECTORY_PATH")
+	if sharedPath != "" {
+		sharedDir, err := vz.NewSharedDirectory(sharedPath, false)
+		if err != nil {
+			log.Fatal(err)
+		}
+		sharedDirConfig := vz.NewSingleDirectoryShare(sharedDir)
+		fileSystemDeviceConfig, err := vz.NewVirtioFileSystemDeviceConfiguration("vz-shared")
+		if err != nil {
+			log.Fatal(err)
+		}
+		fileSystemDeviceConfig.SetDirectoryShare(sharedDirConfig)
+		config.SetDirectorySharingDevicesVirtualMachineConfiguration([]vz.DirectorySharingDeviceConfiguration{
+			fileSystemDeviceConfig,
+		})
+	}
+
 	validated, err := config.Validate()
 	if !validated || err != nil {
 		log.Fatal("validation failed", err)
