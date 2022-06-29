@@ -100,3 +100,7 @@ typedef struct VZVirtioSocketConnectionFlat
 } VZVirtioSocketConnectionFlat;
 
 VZVirtioSocketConnectionFlat convertVZVirtioSocketConnection2Flat(void *connection);
+
+
+/* file sharing */
+bool virtioFileSystemDeviceSupported();
