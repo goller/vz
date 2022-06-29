@@ -6,7 +6,12 @@ package vz
 # include "virtualization.h"
 */
 import "C"
-import "runtime"
+import (
+	"errors"
+	"runtime"
+)
+
+var errVirtioFileSystemDeviceNotSupported = errors.New("VirtioFileSystemDevice is not available on this version of macOS")
 
 // DirectorySharingDeviceConfiguration for a directory sharing device configuration.
 type DirectorySharingDeviceConfiguration interface {
@@ -30,8 +35,15 @@ type VirtioFileSystemDeviceConfiguration struct {
 	*baseDirectorySharingDeviceConfiguration
 }
 
+func VirtioFileSystemDeviceSupported() bool {
+	return bool(C.virtioFileSystemDeviceSupported())
+}
+
 // NewVirtioFileSystemDeviceConfiguration create a new VirtioFileSystemDeviceConfiguration.
-func NewVirtioFileSystemDeviceConfiguration(tag string) *VirtioFileSystemDeviceConfiguration {
+func NewVirtioFileSystemDeviceConfiguration(tag string) (*VirtioFileSystemDeviceConfiguration, error) {
+	if !VirtioFileSystemDeviceSupported() {
+		return nil, errVirtioFileSystemDeviceNotSupported
+	}
 	tagChar := charWithGoString(tag)
 	defer tagChar.Free()
 	fsdConfig := &VirtioFileSystemDeviceConfiguration{
@@ -42,7 +54,7 @@ func NewVirtioFileSystemDeviceConfiguration(tag string) *VirtioFileSystemDeviceC
 	runtime.SetFinalizer(fsdConfig, func(self *VirtioFileSystemDeviceConfiguration) {
 		self.Release()
 	})
-	return fsdConfig
+	return fsdConfig, nil
 }
 
 // SetDirectoryShare sets the directory share associated with this configuration.
@@ -56,18 +68,22 @@ type SharedDirectory struct {
 }
 
 // NewSharedDirectory creates a new shared directory.
-func NewSharedDirectory(dirPath string, readOnly bool) *SharedDirectory {
+func NewSharedDirectory(dirPath string, readOnly bool) (*SharedDirectory, error) {
+	if !VirtioFileSystemDeviceSupported() {
+		return nil, errVirtioFileSystemDeviceNotSupported
+	}
 	dirPathChar := charWithGoString(dirPath)
 	defer dirPathChar.Free()
+	ptr := C.newVZSharedDirectory(dirPathChar.CString(), C.bool(readOnly))
 	sd := &SharedDirectory{
 		pointer: pointer{
-			ptr: C.newVZSharedDirectory(dirPathChar.CString(), C.bool(readOnly)),
+			ptr: ptr,
 		},
 	}
 	runtime.SetFinalizer(sd, func(self *SharedDirectory) {
 		self.Release()
 	})
-	return sd
+	return sd, nil
 }
 
 // DirectoryShare is the base interface for a directory share.

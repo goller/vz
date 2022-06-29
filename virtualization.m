@@ -598,6 +598,20 @@ void* newVZSharedDirectory(const char *dirPath, bool readOnly)
     }
 }
 
+
+/*!
+ @abstract Indicates if the macOS version being used supports file sharing. macOS 12+ is required.
+ @return True if file sharing is supported
+ */
+bool virtioFileSystemDeviceSupported()
+{
+    if (@available(macOS 12, *)) {
+	return (bool)true;
+    } else {
+	return (bool)false;
+    }
+}
+
 /*!
  @abstract Initialize the VZSingleDirectoryShare from the shared directory.
  @param sharedDirectory

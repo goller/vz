@@ -121,9 +121,18 @@ func main() {
 
 	sharedPath := os.Getenv("SHARED_DIRECTORY_PATH")
 	if sharedPath != "" {
-		sharedDir := vz.NewSharedDirectory(sharedPath, false)
+		if !vz.VirtioFileSystemDeviceSupported() {
+			log.Fatal("SHARED_DIRECTORY_PATH was set but virtiofs is not supported on this system")
+		}
+		sharedDir, err := vz.NewSharedDirectory(sharedPath, false)
+		if err != nil {
+			log.Fatal(err)
+		}
 		sharedDirConfig := vz.NewSingleDirectoryShare(sharedDir)
-		fileSystemDeviceConfig := vz.NewVirtioFileSystemDeviceConfiguration("vz-shared")
+		fileSystemDeviceConfig, err := vz.NewVirtioFileSystemDeviceConfiguration("vz-shared")
+		if err != nil {
+			log.Fatal(err)
+		}
 		fileSystemDeviceConfig.SetDirectoryShare(sharedDirConfig)
 		config.SetDirectorySharingDevicesVirtualMachineConfiguration([]vz.DirectorySharingDeviceConfiguration{
 			fileSystemDeviceConfig,
