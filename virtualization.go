@@ -7,11 +7,17 @@ package vz
 */
 import "C"
 import (
+	"errors"
 	"runtime"
 	"runtime/cgo"
+	"strconv"
+	"strings"
 	"sync"
+	"syscall"
 	"unsafe"
 )
+
+var ErrUnsupportedOSVersion error = errors.New("unsupported macOS version")
 
 func init() {
 	C.sharedApplication()
@@ -293,4 +299,24 @@ func (v *VirtualMachine) Stop(fn func(error)) {
 // You must to call runtime.LockOSThread before calling this method.
 func (v *VirtualMachine) StartGraphicApplication(width, height float64) {
 	C.startVirtualMachineWindow(v.Ptr(), C.double(width), C.double(height))
+}
+
+func macOSMajorVersion() int {
+	osver, err := syscall.Sysctl("kern.osproductversion")
+	if err != nil {
+		return 0
+	}
+	osverArray := strings.Split(osver, ".")
+	if len(osverArray) < 1 {
+		return 0
+	}
+	major, err := strconv.Atoi(osverArray[0])
+	if err != nil {
+		return 0
+	}
+	return major
+}
+
+func macosMajorVersionLessThan(major int) bool {
+	return macOSMajorVersion() < major
 }
