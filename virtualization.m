@@ -274,7 +274,9 @@ void setGraphicsDevicesVZVirtualMachineConfiguration(void *config, void *graphic
  */
 void setPointingDevicesVZVirtualMachineConfiguration(void *config, void *pointingDevices)
 {
-    [(VZVirtualMachineConfiguration *)config setPointingDevices:[(NSMutableArray *)pointingDevices copy]];
+    if (@available(macOS 12, *)) {
+        [(VZVirtualMachineConfiguration *)config setPointingDevices:[(NSMutableArray *)pointingDevices copy]];
+    }
 }
 
 /*!
@@ -283,7 +285,9 @@ void setPointingDevicesVZVirtualMachineConfiguration(void *config, void *pointin
  */
 void setKeyboardsVZVirtualMachineConfiguration(void *config, void *keyboards)
 {
-    [(VZVirtualMachineConfiguration *)config setKeyboards:[(NSMutableArray *)keyboards copy]];
+    if (@available(macOS 12, *)) {
+        [(VZVirtualMachineConfiguration *)config setKeyboards:[(NSMutableArray *)keyboards copy]];
+    }
 }
 
 /*!
@@ -796,7 +800,11 @@ void setVZVirtioFileSystemDeviceConfigurationShare(void *config, void *share)
  */
 void *newVZUSBScreenCoordinatePointingDeviceConfiguration()
 {
-    return [[VZUSBScreenCoordinatePointingDeviceConfiguration alloc] init];
+    if (@available(macOS 12, *)) {
+        return [[VZUSBScreenCoordinatePointingDeviceConfiguration alloc] init];
+    } else {
+        return nil;
+    }
 }
 
 /*!
@@ -805,7 +813,11 @@ void *newVZUSBScreenCoordinatePointingDeviceConfiguration()
  */
 void *newVZUSBKeyboardConfiguration()
 {
-    return [[VZUSBKeyboardConfiguration alloc] init];
+    if (@available(macOS 12, *)) {
+        return [[VZUSBKeyboardConfiguration alloc] init];
+    } else {
+        return nil;
+    }
 }
 
 /*!
