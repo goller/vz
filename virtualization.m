@@ -296,7 +296,9 @@ void setKeyboardsVZVirtualMachineConfiguration(void *config, void *keyboards)
  */
 void setAudioDevicesVZVirtualMachineConfiguration(void *config, void *audioDevices)
 {
-    [(VZVirtualMachineConfiguration *)config setAudioDevices:[(NSMutableArray *)audioDevices copy]];
+    if (@available(macOS 12, *)) {
+        [(VZVirtualMachineConfiguration *)config setAudioDevices:[(NSMutableArray *)audioDevices copy]];
+    }
 }
 
 /*!
@@ -305,7 +307,11 @@ void setAudioDevicesVZVirtualMachineConfiguration(void *config, void *audioDevic
  */
 void *newVZVirtioSoundDeviceConfiguration()
 {
-    return [[VZVirtioSoundDeviceConfiguration alloc] init];
+    if (@available(macOS 12, *)) {
+        return [[VZVirtioSoundDeviceConfiguration alloc] init];
+    } else {
+        return nil;
+    }
 }
 
 /*!
@@ -313,7 +319,9 @@ void *newVZVirtioSoundDeviceConfiguration()
 */
 void setStreamsVZVirtioSoundDeviceConfiguration(void *audioDeviceConfiguration, void *streams)
 {
-    [(VZVirtioSoundDeviceConfiguration *)audioDeviceConfiguration setStreams:[(NSMutableArray *)streams copy]];
+    if (@available(macOS 12, *)) {
+        [(VZVirtioSoundDeviceConfiguration *)audioDeviceConfiguration setStreams:[(NSMutableArray *)streams copy]];
+    }
 }
 
 /*!
@@ -322,7 +330,11 @@ void setStreamsVZVirtioSoundDeviceConfiguration(void *audioDeviceConfiguration, 
  */
 void *newVZVirtioSoundDeviceInputStreamConfiguration()
 {
-    return [[VZVirtioSoundDeviceInputStreamConfiguration alloc] init];
+    if (@available(macOS 12, *)) {
+        return [[VZVirtioSoundDeviceInputStreamConfiguration alloc] init];
+    } else {
+        return nil;
+    }
 }
 
 /*!
@@ -330,9 +342,13 @@ void *newVZVirtioSoundDeviceInputStreamConfiguration()
  */
 void *newVZVirtioSoundDeviceHostInputStreamConfiguration()
 {
-    VZVirtioSoundDeviceInputStreamConfiguration *inputStream = (VZVirtioSoundDeviceInputStreamConfiguration *)newVZVirtioSoundDeviceInputStreamConfiguration();
-    [inputStream setSource:[[VZHostAudioInputStreamSource alloc] init]];
-    return inputStream;
+    if (@available(macOS 12, *)) {
+        VZVirtioSoundDeviceInputStreamConfiguration *inputStream = (VZVirtioSoundDeviceInputStreamConfiguration *)newVZVirtioSoundDeviceInputStreamConfiguration();
+        [inputStream setSource:[[VZHostAudioInputStreamSource alloc] init]];
+        return inputStream;
+    } else {
+        return nil;
+    }
 }
 
 /*!
@@ -341,7 +357,11 @@ void *newVZVirtioSoundDeviceHostInputStreamConfiguration()
  */
 void *newVZVirtioSoundDeviceOutputStreamConfiguration()
 {
-    return [[VZVirtioSoundDeviceOutputStreamConfiguration alloc] init];
+    if (@available(macOS 12, *)) {
+        return [[VZVirtioSoundDeviceOutputStreamConfiguration alloc] init];
+    } else {
+        return nil;
+    }
 }
 
 /*!
@@ -349,9 +369,13 @@ void *newVZVirtioSoundDeviceOutputStreamConfiguration()
  */
 void *newVZVirtioSoundDeviceHostOutputStreamConfiguration()
 {
-    VZVirtioSoundDeviceOutputStreamConfiguration *outputStream = (VZVirtioSoundDeviceOutputStreamConfiguration *)newVZVirtioSoundDeviceOutputStreamConfiguration();
-    [outputStream setSink:[[VZHostAudioOutputStreamSink alloc] init]];
-    return outputStream;
+    if (@available(macOS 12, *)) {
+        VZVirtioSoundDeviceOutputStreamConfiguration *outputStream = (VZVirtioSoundDeviceOutputStreamConfiguration *)newVZVirtioSoundDeviceOutputStreamConfiguration();
+        [outputStream setSink:[[VZHostAudioOutputStreamSink alloc] init]];
+        return outputStream;
+    } else {
+        return nil;
+    }
 }
 
 /*!
