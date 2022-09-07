@@ -24,16 +24,20 @@
  */
 void *newVZMacAuxiliaryStorageWithCreating(const char *storagePath, void *hardwareModel, void **error)
 {
-    VZMacAuxiliaryStorage *auxiliaryStorage;
-    @autoreleasepool {
-        NSString *storagePathNSString = [NSString stringWithUTF8String:storagePath];
-        NSURL *storageURL = [NSURL fileURLWithPath:storagePathNSString];
-        auxiliaryStorage = [[VZMacAuxiliaryStorage alloc] initCreatingStorageAtURL:storageURL
-                                                                     hardwareModel:(VZMacHardwareModel *)hardwareModel
-                                                                           options:VZMacAuxiliaryStorageInitializationOptionAllowOverwrite
-                                                                             error:(NSError *_Nullable *_Nullable)error];
+    if (@available(macOS 12, *)) {
+        VZMacAuxiliaryStorage *auxiliaryStorage;
+        @autoreleasepool {
+            NSString *storagePathNSString = [NSString stringWithUTF8String:storagePath];
+            NSURL *storageURL = [NSURL fileURLWithPath:storagePathNSString];
+            auxiliaryStorage = [[VZMacAuxiliaryStorage alloc] initCreatingStorageAtURL:storageURL
+                                                                         hardwareModel:(VZMacHardwareModel *)hardwareModel
+                                                                               options:VZMacAuxiliaryStorageInitializationOptionAllowOverwrite
+                                                                                 error:(NSError *_Nullable *_Nullable)error];
+        }
+        return auxiliaryStorage;
+    } else {
+        return nil;
     }
-    return auxiliaryStorage;
 }
 
 /*!
@@ -43,15 +47,19 @@ void *newVZMacAuxiliaryStorageWithCreating(const char *storagePath, void *hardwa
  */
 void *newVZMacAuxiliaryStorage(const char *storagePath)
 {
-    VZMacAuxiliaryStorage *auxiliaryStorage;
-    @autoreleasepool {
-        NSString *storagePathNSString = [NSString stringWithUTF8String:storagePath];
-        NSURL *storageURL = [NSURL fileURLWithPath:storagePathNSString];
-        // Use initWithURL: in macOS 13.x
-        // https://developer.apple.com/documentation/virtualization/vzmacauxiliarystorage?language=objc
-        auxiliaryStorage = [[VZMacAuxiliaryStorage alloc] initWithContentsOfURL:storageURL];
+    if (@available(macOS 12, *)) {
+        VZMacAuxiliaryStorage *auxiliaryStorage;
+        @autoreleasepool {
+            NSString *storagePathNSString = [NSString stringWithUTF8String:storagePath];
+            NSURL *storageURL = [NSURL fileURLWithPath:storagePathNSString];
+            // Use initWithURL: in macOS 13.x
+            // https://developer.apple.com/documentation/virtualization/vzmacauxiliarystorage?language=objc
+            auxiliaryStorage = [[VZMacAuxiliaryStorage alloc] initWithContentsOfURL:storageURL];
+        }
+        return auxiliaryStorage;
+    } else {
+        return nil;
     }
-    return auxiliaryStorage;
 }
 
 /*!
@@ -74,7 +82,11 @@ void *newVZMacAuxiliaryStorage(const char *storagePath)
 */
 void *newVZMacPlatformConfiguration()
 {
-    return [[VZMacPlatformConfiguration alloc] init];
+    if (@available(macOS 12, *)) {
+        return [[VZMacPlatformConfiguration alloc] init];
+    } else {
+        return nil;
+    }
 }
 
 /*!
@@ -82,17 +94,21 @@ void *newVZMacPlatformConfiguration()
  */
 void setHardwareModelVZMacPlatformConfiguration(void *config, void *hardwareModel)
 {
-    [(VZMacPlatformConfiguration *)config setHardwareModel:(VZMacHardwareModel *)hardwareModel];
+    if (@available(macOS 12, *)) {
+        [(VZMacPlatformConfiguration *)config setHardwareModel:(VZMacHardwareModel *)hardwareModel];
+    }
 }
 
 // Store the hardware model to disk so that we can retrieve them for subsequent boots.
 void storeHardwareModelDataVZMacPlatformConfiguration(void *config, const char *filePath)
 {
-    VZMacPlatformConfiguration *macPlatformConfiguration = (VZMacPlatformConfiguration *)config;
-    @autoreleasepool {
-        NSString *filePathNSString = [NSString stringWithUTF8String:filePath];
-        NSURL *fileURL = [NSURL fileURLWithPath:filePathNSString];
-        [macPlatformConfiguration.hardwareModel.dataRepresentation writeToURL:fileURL atomically:YES];
+    if (@available(macOS 12, *)) {
+        VZMacPlatformConfiguration *macPlatformConfiguration = (VZMacPlatformConfiguration *)config;
+        @autoreleasepool {
+            NSString *filePathNSString = [NSString stringWithUTF8String:filePath];
+            NSURL *fileURL = [NSURL fileURLWithPath:filePathNSString];
+            [macPlatformConfiguration.hardwareModel.dataRepresentation writeToURL:fileURL atomically:YES];
+        }
     }
 }
 
@@ -103,17 +119,21 @@ void storeHardwareModelDataVZMacPlatformConfiguration(void *config, const char *
  */
 void setMachineIdentifierVZMacPlatformConfiguration(void *config, void *machineIdentifier)
 {
-    [(VZMacPlatformConfiguration *)config setMachineIdentifier:(VZMacMachineIdentifier *)machineIdentifier];
+    if (@available(macOS 12, *)) {
+        [(VZMacPlatformConfiguration *)config setMachineIdentifier:(VZMacMachineIdentifier *)machineIdentifier];
+    }
 }
 
 // Store the machine identifier to disk so that we can retrieve them for subsequent boots.
 void storeMachineIdentifierDataVZMacPlatformConfiguration(void *config, const char *filePath)
 {
-    VZMacPlatformConfiguration *macPlatformConfiguration = (VZMacPlatformConfiguration *)config;
-    @autoreleasepool {
-        NSString *filePathNSString = [NSString stringWithUTF8String:filePath];
-        NSURL *fileURL = [NSURL fileURLWithPath:filePathNSString];
-        [macPlatformConfiguration.machineIdentifier.dataRepresentation writeToURL:fileURL atomically:YES];
+    if (@available(macOS 12, *)) {
+        VZMacPlatformConfiguration *macPlatformConfiguration = (VZMacPlatformConfiguration *)config;
+        @autoreleasepool {
+            NSString *filePathNSString = [NSString stringWithUTF8String:filePath];
+            NSURL *fileURL = [NSURL fileURLWithPath:filePathNSString];
+            [macPlatformConfiguration.machineIdentifier.dataRepresentation writeToURL:fileURL atomically:YES];
+        }
     }
 }
 
@@ -125,7 +145,9 @@ void storeMachineIdentifierDataVZMacPlatformConfiguration(void *config, const ch
  */
 void setAuxiliaryStorageVZMacPlatformConfiguration(void *config, void *auxiliaryStorage)
 {
-    [(VZMacPlatformConfiguration *)config setAuxiliaryStorage:(VZMacAuxiliaryStorage *)auxiliaryStorage];
+    if (@available(macOS 12, *)) {
+        [(VZMacPlatformConfiguration *)config setAuxiliaryStorage:(VZMacAuxiliaryStorage *)auxiliaryStorage];
+    }
 }
 
 /*!
@@ -138,7 +160,11 @@ void setAuxiliaryStorageVZMacPlatformConfiguration(void *config, void *auxiliary
 */
 void *newVZMacOSBootLoader()
 {
-    return [[VZMacOSBootLoader alloc] init];
+    if (@available(macOS 12, *)) {
+        return [[VZMacOSBootLoader alloc] init];
+    } else {
+        return nil;
+    }
 }
 
 /*!
@@ -147,7 +173,11 @@ void *newVZMacOSBootLoader()
 */
 void *newVZMacGraphicsDeviceConfiguration()
 {
-    return [[VZMacGraphicsDeviceConfiguration alloc] init];
+    if (@available(macOS 12, *)) {
+        return [[VZMacGraphicsDeviceConfiguration alloc] init];
+    } else {
+        return nil;
+    }
 }
 
 /*!
@@ -155,7 +185,9 @@ void *newVZMacGraphicsDeviceConfiguration()
 */
 void setDisplaysVZMacGraphicsDeviceConfiguration(void *graphicsConfiguration, void *displays)
 {
-    [(VZMacGraphicsDeviceConfiguration *)graphicsConfiguration setDisplays:[(NSMutableArray *)displays copy]];
+    if (@available(macOS 12, *)) {
+        [(VZMacGraphicsDeviceConfiguration *)graphicsConfiguration setDisplays:[(NSMutableArray *)displays copy]];
+    }
 }
 
 /*!
@@ -166,10 +198,14 @@ void setDisplaysVZMacGraphicsDeviceConfiguration(void *graphicsConfiguration, vo
 */
 void *newVZMacGraphicsDisplayConfiguration(NSInteger widthInPixels, NSInteger heightInPixels, NSInteger pixelsPerInch)
 {
-    return [[VZMacGraphicsDisplayConfiguration alloc]
-        initWithWidthInPixels:widthInPixels
-               heightInPixels:heightInPixels
-                pixelsPerInch:pixelsPerInch];
+    if (@available(macOS 12, *)) {
+        return [[VZMacGraphicsDisplayConfiguration alloc]
+            initWithWidthInPixels:widthInPixels
+                   heightInPixels:heightInPixels
+                    pixelsPerInch:pixelsPerInch];
+    } else {
+        return nil;
+    }
 }
 
 /*!
@@ -178,24 +214,32 @@ void *newVZMacGraphicsDisplayConfiguration(NSInteger widthInPixels, NSInteger he
  */
 void *newVZMacHardwareModelWithPath(const char *hardwareModelPath)
 {
-    VZMacHardwareModel *hardwareModel;
-    @autoreleasepool {
-        NSString *hardwareModelPathNSString = [NSString stringWithUTF8String:hardwareModelPath];
-        NSURL *hardwareModelPathURL = [NSURL fileURLWithPath:hardwareModelPathNSString];
-        NSData *hardwareModelData = [[NSData alloc] initWithContentsOfURL:hardwareModelPathURL];
-        hardwareModel = [[VZMacHardwareModel alloc] initWithDataRepresentation:hardwareModelData];
+    if (@available(macOS 12, *)) {
+        VZMacHardwareModel *hardwareModel;
+        @autoreleasepool {
+            NSString *hardwareModelPathNSString = [NSString stringWithUTF8String:hardwareModelPath];
+            NSURL *hardwareModelPathURL = [NSURL fileURLWithPath:hardwareModelPathNSString];
+            NSData *hardwareModelData = [[NSData alloc] initWithContentsOfURL:hardwareModelPathURL];
+            hardwareModel = [[VZMacHardwareModel alloc] initWithDataRepresentation:hardwareModelData];
+        }
+        return hardwareModel;
+    } else {
+        return nil;
     }
-    return hardwareModel;
 }
 
 void *newVZMacHardwareModelWithBytes(void *hardwareModelBytes, int len)
 {
-    VZMacHardwareModel *hardwareModel;
-    @autoreleasepool {
-        NSData *hardwareModelData = [[NSData alloc] initWithBytes:hardwareModelBytes length:(NSUInteger)len];
-        hardwareModel = [[VZMacHardwareModel alloc] initWithDataRepresentation:hardwareModelData];
+    if (@available(macOS 12, *)) {
+        VZMacHardwareModel *hardwareModel;
+        @autoreleasepool {
+            NSData *hardwareModelData = [[NSData alloc] initWithBytes:hardwareModelBytes length:(NSUInteger)len];
+            hardwareModel = [[VZMacHardwareModel alloc] initWithDataRepresentation:hardwareModelData];
+        }
+        return hardwareModel;
+    } else {
+        return nil;
     }
-    return hardwareModel;
 }
 
 /*!
@@ -203,7 +247,11 @@ void *newVZMacHardwareModelWithBytes(void *hardwareModelBytes, int len)
  */
 void *newVZMacMachineIdentifier()
 {
-    return [[VZMacMachineIdentifier alloc] init];
+    if (@available(macOS 12, *)) {
+        return [[VZMacMachineIdentifier alloc] init];
+    } else {
+        return nil;
+    }
 }
 
 /*!
@@ -214,91 +262,114 @@ void *newVZMacMachineIdentifier()
  */
 void *newVZMacMachineIdentifierWithPath(const char *machineIdentifierPath)
 {
-    VZMacMachineIdentifier *machineIdentifier;
-    @autoreleasepool {
-        NSString *machineIdentifierPathNSString = [NSString stringWithUTF8String:machineIdentifierPath];
-        NSURL *machineIdentifierPathURL = [NSURL fileURLWithPath:machineIdentifierPathNSString];
-        NSData *machineIdentifierData = [[NSData alloc] initWithContentsOfURL:machineIdentifierPathURL];
-        machineIdentifier = [[VZMacMachineIdentifier alloc] initWithDataRepresentation:machineIdentifierData];
+    if (@available(macOS 12, *)) {
+        VZMacMachineIdentifier *machineIdentifier;
+        @autoreleasepool {
+            NSString *machineIdentifierPathNSString = [NSString stringWithUTF8String:machineIdentifierPath];
+            NSURL *machineIdentifierPathURL = [NSURL fileURLWithPath:machineIdentifierPathNSString];
+            NSData *machineIdentifierData = [[NSData alloc] initWithContentsOfURL:machineIdentifierPathURL];
+            machineIdentifier = [[VZMacMachineIdentifier alloc] initWithDataRepresentation:machineIdentifierData];
+        }
+        return machineIdentifier;
+    } else {
+        return nil;
     }
-    return machineIdentifier;
 }
 
 void *newVZMacMachineIdentifierWithBytes(void *machineIdentifierBytes, int len)
 {
-    VZMacMachineIdentifier *machineIdentifier;
-    @autoreleasepool {
-        NSData *machineIdentifierData = [[NSData alloc] initWithBytes:machineIdentifierBytes length:(NSUInteger)len];
-        machineIdentifier = [[VZMacMachineIdentifier alloc] initWithDataRepresentation:machineIdentifierData];
+    if (@available(macOS 12, *)) {
+        VZMacMachineIdentifier *machineIdentifier;
+        @autoreleasepool {
+            NSData *machineIdentifierData = [[NSData alloc] initWithBytes:machineIdentifierBytes length:(NSUInteger)len];
+            machineIdentifier = [[VZMacMachineIdentifier alloc] initWithDataRepresentation:machineIdentifierData];
+        }
+        return machineIdentifier;
+    } else {
+        return nil;
     }
-    return machineIdentifier;
 }
 
 nbyteslice getVZMacMachineIdentifierDataRepresentation(void *machineIdentifierPtr)
 {
-    VZMacMachineIdentifier *machineIdentifier = (VZMacMachineIdentifier *)machineIdentifierPtr;
-    NSData *data = [machineIdentifier dataRepresentation];
-    nbyteslice ret = {
-        .ptr = (void *)[data bytes],
-        .len = (int)[data length],
-    };
+    nbyteslice ret;
+    if (@available(macOS 12, *)) {
+        VZMacMachineIdentifier *machineIdentifier = (VZMacMachineIdentifier *)machineIdentifierPtr;
+        NSData *data = [machineIdentifier dataRepresentation];
+        ret.ptr = (void *)[data bytes];
+        ret.len = (int)[data length];
+    } else {
+        ret.ptr = nil;
+        ret.len = 0;
+    }
     return ret;
 }
 
-VZMacOSRestoreImageStruct convertVZMacOSRestoreImage2Struct(VZMacOSRestoreImage *restoreImage)
+VZMacOSRestoreImageStruct convertVZMacOSRestoreImage2Struct(void *restoreImagePtr)
 {
     VZMacOSRestoreImageStruct ret;
-    ret.url = [[[restoreImage URL] absoluteString] UTF8String];
-    ret.buildVersion = [[restoreImage buildVersion] UTF8String];
-    ret.operatingSystemVersion = [restoreImage operatingSystemVersion];
-    // maybe unnecessary CFBridgingRetain. if use CFBridgingRetain, should use CFRelease.
-    ret.mostFeaturefulSupportedConfiguration = (void *)CFBridgingRetain([restoreImage mostFeaturefulSupportedConfiguration]);
+    if (@available(macOS 12, *)) {
+        VZMacOSRestoreImage *restoreImage = (VZMacOSRestoreImage *)restoreImagePtr;
+        ret.url = [[[restoreImage URL] absoluteString] UTF8String];
+        ret.buildVersion = [[restoreImage buildVersion] UTF8String];
+        ret.operatingSystemVersion = [restoreImage operatingSystemVersion];
+        // maybe unnecessary CFBridgingRetain. if use CFBridgingRetain, should use CFRelease.
+        ret.mostFeaturefulSupportedConfiguration = (void *)CFBridgingRetain([restoreImage mostFeaturefulSupportedConfiguration]);
+    }
     return ret;
 }
 
 void fetchLatestSupportedMacOSRestoreImageWithCompletionHandler(void *cgoHandler)
 {
-    [VZMacOSRestoreImage fetchLatestSupportedWithCompletionHandler:^(VZMacOSRestoreImage *restoreImage, NSError *error) {
-        VZMacOSRestoreImageStruct restoreImageStruct = convertVZMacOSRestoreImage2Struct(restoreImage);
-        macOSRestoreImageCompletionHandler(cgoHandler, &restoreImageStruct, error);
-    }];
+    if (@available(macOS 12, *)) {
+        [VZMacOSRestoreImage fetchLatestSupportedWithCompletionHandler:^(VZMacOSRestoreImage *restoreImage, NSError *error) {
+            VZMacOSRestoreImageStruct restoreImageStruct = convertVZMacOSRestoreImage2Struct(restoreImage);
+            macOSRestoreImageCompletionHandler(cgoHandler, &restoreImageStruct, error);
+        }];
+    }
 }
 
 void loadMacOSRestoreImageFile(const char *ipswPath, void *cgoHandler)
 {
-    @autoreleasepool {
-        NSString *ipswPathNSString = [NSString stringWithUTF8String:ipswPath];
-        NSURL *ipswURL = [[NSURL alloc] initFileURLWithPath:ipswPathNSString];
-        [VZMacOSRestoreImage loadFileURL:ipswURL
-                       completionHandler:^(VZMacOSRestoreImage *restoreImage, NSError *error) {
-                           VZMacOSRestoreImageStruct restoreImageStruct = convertVZMacOSRestoreImage2Struct(restoreImage);
-                           macOSRestoreImageCompletionHandler(cgoHandler, &restoreImageStruct, error);
-                       }];
+    if (@available(macOS 12, *)) {
+        @autoreleasepool {
+            NSString *ipswPathNSString = [NSString stringWithUTF8String:ipswPath];
+            NSURL *ipswURL = [[NSURL alloc] initFileURLWithPath:ipswPathNSString];
+            [VZMacOSRestoreImage loadFileURL:ipswURL
+                           completionHandler:^(VZMacOSRestoreImage *restoreImage, NSError *error) {
+                               VZMacOSRestoreImageStruct restoreImageStruct = convertVZMacOSRestoreImage2Struct(restoreImage);
+                               macOSRestoreImageCompletionHandler(cgoHandler, &restoreImageStruct, error);
+                           }];
+        }
     }
 }
 
 VZMacOSConfigurationRequirementsStruct convertVZMacOSConfigurationRequirements2Struct(void *requirementsPtr)
 {
-    VZMacOSConfigurationRequirements *requirements = (VZMacOSConfigurationRequirements *)requirementsPtr;
     VZMacOSConfigurationRequirementsStruct ret;
-    ret.minimumSupportedCPUCount = (uint64_t)[requirements minimumSupportedCPUCount];
-    ret.minimumSupportedMemorySize = (uint64_t)[requirements minimumSupportedMemorySize];
-    // maybe unnecessary CFBridgingRetain. if use CFBridgingRetain, should use CFRelease.
-    ret.hardwareModel = (void *)CFBridgingRetain([requirements hardwareModel]);
+    if (@available(macOS 12, *)) {
+        VZMacOSConfigurationRequirements *requirements = (VZMacOSConfigurationRequirements *)requirementsPtr;
+        ret.minimumSupportedCPUCount = (uint64_t)[requirements minimumSupportedCPUCount];
+        ret.minimumSupportedMemorySize = (uint64_t)[requirements minimumSupportedMemorySize];
+        // maybe unnecessary CFBridgingRetain. if use CFBridgingRetain, should use CFRelease.
+        ret.hardwareModel = (void *)CFBridgingRetain([requirements hardwareModel]);
+    }
     return ret;
 }
 
 VZMacHardwareModelStruct convertVZMacHardwareModel2Struct(void *hardwareModelPtr)
 {
-    VZMacHardwareModel *hardwareModel = (VZMacHardwareModel *)hardwareModelPtr;
     VZMacHardwareModelStruct ret;
-    ret.supported = (bool)[hardwareModel isSupported];
-    NSData *data = [hardwareModel dataRepresentation];
-    nbyteslice retByteSlice = {
-        .ptr = (void *)[data bytes],
-        .len = (int)[data length],
-    };
-    ret.dataRepresentation = retByteSlice;
+    if (@available(macOS 12, *)) {
+        VZMacHardwareModel *hardwareModel = (VZMacHardwareModel *)hardwareModelPtr;
+        ret.supported = (bool)[hardwareModel isSupported];
+        NSData *data = [hardwareModel dataRepresentation];
+        nbyteslice retByteSlice = {
+            .ptr = (void *)[data bytes],
+            .len = (int)[data length],
+        };
+        ret.dataRepresentation = retByteSlice;
+    }
     return ret;
 }
 
@@ -312,15 +383,19 @@ VZMacHardwareModelStruct convertVZMacHardwareModel2Struct(void *hardwareModelPtr
  */
 void *newVZMacOSInstaller(void *virtualMachine, void *vmQueue, const char *restoreImageFilePath)
 {
-    __block VZMacOSInstaller *ret;
-    @autoreleasepool {
-        NSString *restoreImageFilePathNSString = [NSString stringWithUTF8String:restoreImageFilePath];
-        NSURL *restoreImageFileURL = [[NSURL alloc] initFileURLWithPath:restoreImageFilePathNSString];
-        dispatch_sync((dispatch_queue_t)vmQueue, ^{
-            ret = [[VZMacOSInstaller alloc] initWithVirtualMachine:(VZVirtualMachine *)virtualMachine restoreImageURL:restoreImageFileURL];
-        });
+    if (@available(macOS 12, *)) {
+        __block VZMacOSInstaller *ret;
+        @autoreleasepool {
+            NSString *restoreImageFilePathNSString = [NSString stringWithUTF8String:restoreImageFilePath];
+            NSURL *restoreImageFileURL = [[NSURL alloc] initFileURLWithPath:restoreImageFilePathNSString];
+            dispatch_sync((dispatch_queue_t)vmQueue, ^{
+                ret = [[VZMacOSInstaller alloc] initWithVirtualMachine:(VZVirtualMachine *)virtualMachine restoreImageURL:restoreImageFileURL];
+            });
+        }
+        return ret;
+    } else {
+        return nil;
     }
-    return ret;
 }
 
 void *newProgressObserverVZMacOSInstaller()
@@ -330,24 +405,28 @@ void *newProgressObserverVZMacOSInstaller()
 
 void installByVZMacOSInstaller(void *installerPtr, void *vmQueue, void *progressObserverPtr, void *completionHandler, void *fractionCompletedHandler)
 {
-    VZMacOSInstaller *installer = (VZMacOSInstaller *)installerPtr;
-    dispatch_sync((dispatch_queue_t)vmQueue, ^{
-        [installer installWithCompletionHandler:^(NSError *error) {
-            macOSInstallCompletionHandler(completionHandler, error);
-        }];
-        [installer.progress
-            addObserver:(ProgressObserver *)progressObserverPtr
-             forKeyPath:@"fractionCompleted"
-                options:NSKeyValueObservingOptionInitial | NSKeyValueObservingOptionNew
-                context:fractionCompletedHandler];
-    });
+    if (@available(macOS 12, *)) {
+        VZMacOSInstaller *installer = (VZMacOSInstaller *)installerPtr;
+        dispatch_sync((dispatch_queue_t)vmQueue, ^{
+            [installer installWithCompletionHandler:^(NSError *error) {
+                macOSInstallCompletionHandler(completionHandler, error);
+            }];
+            [installer.progress
+                addObserver:(ProgressObserver *)progressObserverPtr
+                 forKeyPath:@"fractionCompleted"
+                    options:NSKeyValueObservingOptionInitial | NSKeyValueObservingOptionNew
+                    context:fractionCompletedHandler];
+        });
+    }
 }
 
 void cancelInstallVZMacOSInstaller(void *installerPtr)
 {
-    VZMacOSInstaller *installer = (VZMacOSInstaller *)installerPtr;
-    if (installer.progress.cancellable) {
-        [installer.progress cancel];
+    if (@available(macOS 12, *)) {
+        VZMacOSInstaller *installer = (VZMacOSInstaller *)installerPtr;
+        if (installer.progress.cancellable) {
+            [installer.progress cancel];
+        }
     }
 }
 
