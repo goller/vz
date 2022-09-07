@@ -7,4 +7,4 @@ codesign:
 
 .PHONY: build
 build:
-	go build -o virtualization .
+	CGO_CFLAGS=-mmacosx-version-min=11.0 go build -o virtualization .
