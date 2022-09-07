@@ -1,7 +1,7 @@
 package vz
 
 /*
-#cgo darwin CFLAGS: -x objective-c -fno-objc-arc -mmacosx-version-min=11.0
+#cgo darwin CFLAGS: -x objective-c -fno-objc-arc -mmacosx-version-min=10.13
 #cgo darwin LDFLAGS: -lobjc -framework Foundation -framework Virtualization
 # include "virtualization.h"
 */
