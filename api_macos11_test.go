@@ -29,3 +29,14 @@ func TestKeyboardAndPointingDevice(t *testing.T) {
 	_, err = NewUSBScreenCoordinatePointingDeviceConfiguration()
 	assert.ErrorIs(t, err, ErrUnsupportedOSVersion)
 }
+
+func TestAudio(t *testing.T) {
+	_, err := NewVirtioSoundDeviceConfiguration()
+	assert.ErrorIs(t, err, ErrUnsupportedOSVersion)
+
+	_, err = NewVirtioSoundDeviceHostInputStreamConfiguration()
+	assert.ErrorIs(t, err, ErrUnsupportedOSVersion)
+
+	_, err = NewVirtioSoundDeviceHostOutputStreamConfiguration()
+	assert.ErrorIs(t, err, ErrUnsupportedOSVersion)
+}
