@@ -35,3 +35,17 @@ func TestKeyboardAndPointingDevice(t *testing.T) {
 	assert.NotNil(t, pointingDeviceConfig)
 
 }
+
+func TestAudio(t *testing.T) {
+	deviceConfig, err := NewVirtioSoundDeviceConfiguration()
+	assert.NoError(t, err)
+	assert.NotNil(t, deviceConfig)
+
+	inputStreamConfig, err := NewVirtioSoundDeviceHostInputStreamConfiguration()
+	assert.NoError(t, err)
+	assert.NotNil(t, inputStreamConfig)
+
+	outputStreamConfig, err := NewVirtioSoundDeviceHostOutputStreamConfiguration()
+	assert.NoError(t, err)
+	assert.NotNil(t, outputStreamConfig)
+}
