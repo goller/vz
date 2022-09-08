@@ -24,3 +24,14 @@ func TestPlatform(t *testing.T) {
 	assert.NoError(t, err)
 	assert.NotNil(t, config)
 }
+
+func TestKeyboardAndPointingDevice(t *testing.T) {
+	keyboardConfig, err := NewUSBKeyboardConfiguration()
+	assert.NoError(t, err)
+	assert.NotNil(t, keyboardConfig)
+
+	pointingDeviceConfig, err := NewUSBScreenCoordinatePointingDeviceConfiguration()
+	assert.NoError(t, err)
+	assert.NotNil(t, pointingDeviceConfig)
+
+}
