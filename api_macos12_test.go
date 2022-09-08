@@ -18,3 +18,9 @@ func TestFileSharing(t *testing.T) {
 	assert.NoError(t, err)
 	assert.NotNil(t, share)
 }
+
+func TestPlatform(t *testing.T) {
+	config, err := NewGenericPlatformConfiguration()
+	assert.NoError(t, err)
+	assert.NotNil(t, config)
+}
