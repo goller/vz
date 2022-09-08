@@ -24,3 +24,8 @@ func TestFileSharing(t *testing.T) {
 	_, err = NewSharedDirectory("/", false)
 	assert.ErrorIs(t, err, ErrUnsupportedOSVersion)
 }
+
+func TestPlatform(t *testing.T) {
+	_, err := NewGenericPlatformConfiguration()
+	assert.ErrorIs(t, err, ErrUnsupportedOSVersion)
+}
