@@ -21,3 +21,11 @@ func TestPlatform(t *testing.T) {
 	_, err := NewGenericPlatformConfiguration()
 	assert.ErrorIs(t, err, ErrUnsupportedOSVersion)
 }
+
+func TestKeyboardAndPointingDevice(t *testing.T) {
+	_, err := NewUSBKeyboardConfiguration()
+	assert.ErrorIs(t, err, ErrUnsupportedOSVersion)
+
+	_, err = NewUSBScreenCoordinatePointingDeviceConfiguration()
+	assert.ErrorIs(t, err, ErrUnsupportedOSVersion)
+}
