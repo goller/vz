@@ -240,6 +240,7 @@ func newVirtioSocketConnection(ptr unsafe.Pointer) (*VirtioSocketConnection, err
 			Err:    err,
 		}
 	}
+	_ = syscall.Close(int(conn.fileDescriptor))
 	conn.fileDescriptor = uintptr(fd)
 	conn.file = os.NewFile((conn.fileDescriptor), id)
 
