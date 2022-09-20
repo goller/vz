@@ -224,7 +224,9 @@ void setMemoryBalloonDevicesVZVirtualMachineConfiguration(void *config,
 void setNetworkDevicesVZVirtualMachineConfiguration(void *config,
     void *networkDevices)
 {
-    [(VZVirtualMachineConfiguration *)config setNetworkDevices:[(NSMutableArray *)networkDevices copy]];
+    if (@available(macOS 11, *)) {
+        [(VZVirtualMachineConfiguration *)config setNetworkDevices:[(NSMutableArray *)networkDevices copy]];
+    }
 }
 
 /*!
@@ -474,7 +476,11 @@ void *newVZVirtioConsoleDeviceSerialPortConfiguration(void *attachment)
  */
 void *newVZBridgedNetworkDeviceAttachment(void *networkInterface)
 {
-    return [[VZBridgedNetworkDeviceAttachment alloc] initWithInterface:(VZBridgedNetworkInterface *)networkInterface];
+    if (@available(macOS 11, *)) {
+        return [[VZBridgedNetworkDeviceAttachment alloc] initWithInterface:(VZBridgedNetworkInterface *)networkInterface];
+    } else {
+        return nil;
+    }
 }
 
 /*!
@@ -487,7 +493,11 @@ void *newVZBridgedNetworkDeviceAttachment(void *networkInterface)
  */
 void *newVZNATNetworkDeviceAttachment()
 {
-    return [[VZNATNetworkDeviceAttachment alloc] init];
+    if (@available(macOS 11, *)) {
+        return [[VZNATNetworkDeviceAttachment alloc] init];
+    } else {
+        return nil;
+    }
 }
 
 /*!
@@ -503,12 +513,16 @@ void *newVZNATNetworkDeviceAttachment()
  */
 void *newVZFileHandleNetworkDeviceAttachment(int fileDescriptor)
 {
-    VZFileHandleNetworkDeviceAttachment *ret;
-    @autoreleasepool {
-        NSFileHandle *fileHandle = [[NSFileHandle alloc] initWithFileDescriptor:fileDescriptor];
-        ret = [[VZFileHandleNetworkDeviceAttachment alloc] initWithFileHandle:fileHandle];
+    if (@available(macOS 11, *)) {
+        VZFileHandleNetworkDeviceAttachment *ret;
+        @autoreleasepool {
+            NSFileHandle *fileHandle = [[NSFileHandle alloc] initWithFileDescriptor:fileDescriptor];
+            ret = [[VZFileHandleNetworkDeviceAttachment alloc] initWithFileHandle:fileHandle];
+        }
+        return ret;
+    } else {
+        return nil;
     }
-    return ret;
 }
 
 /*!
@@ -536,9 +550,13 @@ void *newVZFileHandleNetworkDeviceAttachment(int fileDescriptor)
  */
 void *newVZVirtioNetworkDeviceConfiguration(void *attachment)
 {
-    VZVirtioNetworkDeviceConfiguration *config = [[VZVirtioNetworkDeviceConfiguration alloc] init];
-    [config setAttachment:(VZNetworkDeviceAttachment *)attachment];
-    return config;
+    if (@available(macOS 11, *)) {
+        VZVirtioNetworkDeviceConfiguration *config = [[VZVirtioNetworkDeviceConfiguration alloc] init];
+        [config setAttachment:(VZNetworkDeviceAttachment *)attachment];
+        return config;
+    } else {
+        return nil;
+    }
 }
 
 /*!
@@ -721,12 +739,16 @@ void *VZVirtualMachine_socketDevices(void *machine)
  */
 void *newVZMACAddress(const char *macAddress)
 {
-    VZMACAddress *ret;
-    @autoreleasepool {
-        NSString *str = [NSString stringWithUTF8String:macAddress];
-        ret = [[VZMACAddress alloc] initWithString:str];
+    if (@available(macOS 11, *)) {
+        VZMACAddress *ret;
+        @autoreleasepool {
+            NSString *str = [NSString stringWithUTF8String:macAddress];
+            ret = [[VZMACAddress alloc] initWithString:str];
+        }
+        return ret;
+    } else {
+        return nil;
     }
-    return ret;
 }
 
 /*!
@@ -735,7 +757,11 @@ void *newVZMACAddress(const char *macAddress)
  */
 void *newRandomLocallyAdministeredVZMACAddress()
 {
-    return [VZMACAddress randomLocallyAdministeredAddress];
+    if (@available(macOS 11, *)) {
+        return [VZMACAddress randomLocallyAdministeredAddress];
+    } else {
+        return nil;
+    }
 }
 
 /*!
@@ -743,7 +769,9 @@ void *newRandomLocallyAdministeredVZMACAddress()
  */
 void setNetworkDevicesVZMACAddress(void *config, void *macAddress)
 {
-    [(VZNetworkDeviceConfiguration *)config setMACAddress:[(VZMACAddress *)macAddress copy]];
+    if (@available(macOS 11, *)) {
+        [(VZNetworkDeviceConfiguration *)config setMACAddress:[(VZMACAddress *)macAddress copy]];
+    }
 }
 
 /*!
@@ -756,7 +784,11 @@ void setNetworkDevicesVZMACAddress(void *config, void *macAddress)
  */
 const char *getVZMACAddressString(void *macAddress)
 {
-    return [[(VZMACAddress *)macAddress string] UTF8String];
+    if (@available(macOS 11, *)) {
+        return [[(VZMACAddress *)macAddress string] UTF8String];
+    } else {
+        return nil;
+    }
 }
 
 /*!
