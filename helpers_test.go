@@ -34,8 +34,11 @@ func newTestVM(t *testing.T) *testVM {
 		require.Error(t, err)
 	}
 
+	vm, err := NewVirtualMachine(config)
+	require.NoError(t, err)
+
 	return &testVM{
-		VirtualMachine:    NewVirtualMachine(config),
+		VirtualMachine:    vm,
 		tempKernelFile:    tempKernelFile,
 		stateHandlerError: stateHandlerError,
 	}

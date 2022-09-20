@@ -80,3 +80,8 @@ func TestStorage(t *testing.T) {
 	assert.NoError(t, err)
 	assert.NotNil(t, storage)
 }
+
+func TestVM(t *testing.T) {
+	vm := newTestVM(t)
+	assert.NotNil(t, vm)
+}
