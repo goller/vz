@@ -58,3 +58,12 @@ func TestSerial(t *testing.T) {
 	_, err = NewVirtioConsoleDeviceSerialPortConfiguration(&FileSerialPortAttachment{})
 	assert.ErrorIs(t, err, ErrUnsupportedOSVersion)
 }
+
+func TestStorage(t *testing.T) {
+	f := testFile(t, "storage", []byte{})
+	defer f.Close()
+	_, err := NewDiskImageStorageDeviceAttachment(f.Name(), true)
+	assert.ErrorIs(t, err, ErrUnsupportedOSVersion)
+	_, err = NewVirtioBlockDeviceConfiguration(&DiskImageStorageDeviceAttachment{})
+	assert.ErrorIs(t, err, ErrUnsupportedOSVersion)
+}
