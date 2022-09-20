@@ -1,6 +1,7 @@
 package vz
 
 import (
+	"net"
 	"os"
 	"path/filepath"
 	"testing"
@@ -49,4 +50,13 @@ func testFile(t *testing.T, relPath string, content []byte) *os.File {
 		require.NoError(t, err)
 	}
 	return file
+}
+
+func openUDPConn(t *testing.T) *os.File {
+	udp, err := net.DialUDP("udp", nil, &net.UDPAddr{Port: 8888})
+	require.NoError(t, err)
+	udpFile, err := udp.File()
+	require.NoError(t, err)
+
+	return udpFile
 }

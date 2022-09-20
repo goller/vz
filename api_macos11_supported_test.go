@@ -4,6 +4,7 @@
 package vz
 
 import (
+	"net"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -31,4 +32,26 @@ func TestBalloon(t *testing.T) {
 	config, err := NewVirtioTraditionalMemoryBalloonDeviceConfiguration()
 	assert.NoError(t, err)
 	assert.NotNil(t, config)
+}
+
+func TestNetwork(t *testing.T) {
+	natAttachment, err := NewNATNetworkDeviceAttachment()
+	assert.NoError(t, err)
+	assert.NotNil(t, natAttachment)
+	//unimplemented
+	//NewBridgedNetworkDeviceAttachment(networkInterface BridgedNetwork)
+	udp := openUDPConn(t)
+	defer udp.Close()
+	fileAttachment, err := NewFileHandleNetworkDeviceAttachment(udp)
+	assert.NoError(t, err)
+	assert.NotNil(t, fileAttachment)
+
+	hwaddr, err := net.ParseMAC("52:54:00:70:2b:71")
+	assert.NoError(t, err)
+	mac, err := NewMACAddress(hwaddr)
+	assert.NoError(t, err)
+	assert.NotNil(t, mac)
+	mac, err = NewRandomLocallyAdministeredMACAddress()
+	assert.NoError(t, err)
+	assert.NotNil(t, mac)
 }
