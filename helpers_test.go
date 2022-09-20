@@ -24,7 +24,8 @@ func newTestVM(t *testing.T) *testVM {
 	tempKernelFile := testFile(t, "vz_vmlinuz_dummy", []byte{})
 	bootloader, err := NewLinuxBootLoader(tempKernelFile.Name())
 	require.NoError(t, err)
-	config := NewVirtualMachineConfiguration(bootloader, 1, 64*1024*1024)
+	config, err := NewVirtualMachineConfiguration(bootloader, 1, 64*1024*1024)
+	require.NoError(t, err)
 	//passing the config below to NewVirtualMachine reproduces https://github.com/Code-Hex/vz/issues/43
 	//config := NewVirtualMachineConfiguration(&LinuxBootLoader{}, 1, 64*1024*1024)
 

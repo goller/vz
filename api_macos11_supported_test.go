@@ -14,3 +14,9 @@ func TestBootLoader(t *testing.T) {
 	assert.NoError(t, err)
 	assert.NotNil(t, bootloader)
 }
+
+func TestConfiguration(t *testing.T) {
+	config, err := NewVirtualMachineConfiguration(&LinuxBootLoader{}, 1, 64*1024*1024)
+	assert.NoError(t, err)
+	assert.NotNil(t, config)
+}
