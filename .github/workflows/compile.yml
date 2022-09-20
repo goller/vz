@@ -41,5 +41,9 @@ jobs:
           go-version: ${{ matrix.go }}
       - name: Build
         run: cd example/linux && make
+      - name: Test
+        run: make test
+      - name: Test macOS 11 API
+        run: make test-macos11
       - name: vet
         run: go vet ./...
