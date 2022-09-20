@@ -98,7 +98,14 @@ type machineStatus struct {
 //
 // A new dispatch queue will create when called this function.
 // Every operation on the virtual machine must be done on that queue. The callbacks and delegate methods are invoked on that queue.
-func NewVirtualMachine(config *VirtualMachineConfiguration) *VirtualMachine {
+//
+// This is only supported on macOS 11 and newer, ErrUnsupportedOSVersion will
+// be returned on older versions.
+func NewVirtualMachine(config *VirtualMachineConfiguration) (*VirtualMachine, error) {
+	if macosMajorVersionLessThan(11) {
+		return nil, ErrUnsupportedOSVersion
+	}
+
 	// should not call Free function for this string.
 	cs := getUUID()
 	dispatchQueue := C.makeDispatchQueue(cs.CString())
@@ -126,7 +133,7 @@ func NewVirtualMachine(config *VirtualMachineConfiguration) *VirtualMachine {
 		releaseDispatch(self.dispatchQueue)
 		self.Release()
 	})
-	return v
+	return v, nil
 }
 
 // SocketDevices return the list of socket devices configured on this virtual machine.
@@ -236,7 +243,15 @@ func makeHandler(fn func(error)) (func(error), chan struct{}) {
 //
 // - fn parameter called after the virtual machine has been successfully started or on error.
 // The error parameter passed to the block is null if the start was successful.
+//
+// This is only supported on macOS 11 and newer, on older versions fn will be called immediately
+// with ErrUnsupportedOSVersion.
 func (v *VirtualMachine) Start(fn func(error)) {
+	if macosMajorVersionLessThan(11) {
+		fn(ErrUnsupportedOSVersion)
+		return
+	}
+
 	h, done := makeHandler(fn)
 	handler := cgo.NewHandle(h)
 	defer handler.Delete()
@@ -248,7 +263,15 @@ func (v *VirtualMachine) Start(fn func(error)) {
 //
 // - fn parameter called after the virtual machine has been successfully paused or on error.
 // The error parameter passed to the block is null if the pause was successful.
+//
+// This is only supported on macOS 11 and newer, on older versions fn will be called immediately
+// with ErrUnsupportedOSVersion.
 func (v *VirtualMachine) Pause(fn func(error)) {
+	if macosMajorVersionLessThan(11) {
+		fn(ErrUnsupportedOSVersion)
+		return
+	}
+
 	h, done := makeHandler(fn)
 	handler := cgo.NewHandle(h)
 	defer handler.Delete()
@@ -260,7 +283,15 @@ func (v *VirtualMachine) Pause(fn func(error)) {
 //
 // - fn parameter called after the virtual machine has been successfully resumed or on error.
 // The error parameter passed to the block is null if the resumption was successful.
+//
+// This is only supported on macOS 11 and newer, on older versions fn will be called immediately
+// with ErrUnsupportedOSVersion.
 func (v *VirtualMachine) Resume(fn func(error)) {
+	if macosMajorVersionLessThan(11) {
+		fn(ErrUnsupportedOSVersion)
+		return
+	}
+
 	h, done := makeHandler(fn)
 	handler := cgo.NewHandle(h)
 	defer handler.Delete()
@@ -272,7 +303,14 @@ func (v *VirtualMachine) Resume(fn func(error)) {
 //
 // If returned error is not nil, assigned with the error if the request failed.
 // Returns true if the request was made successfully.
+//
+// This is only supported on macOS 11 and newer, ErrUnsupportedOSVersion will
+// be returned on older versions.
 func (v *VirtualMachine) RequestStop() (bool, error) {
+	if macosMajorVersionLessThan(11) {
+		return false, ErrUnsupportedOSVersion
+	}
+
 	nserr := newNSErrorAsNil()
 	nserrPtr := nserr.Ptr()
 	ret := (bool)(C.requestStopVirtualMachine(v.Ptr(), v.dispatchQueue, &nserrPtr))
