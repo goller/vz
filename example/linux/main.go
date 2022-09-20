@@ -66,11 +66,14 @@ func main() {
 	}
 	log.Println("bootLoader:", bootLoader)
 
-	config := vz.NewVirtualMachineConfiguration(
+	config, err := vz.NewVirtualMachineConfiguration(
 		bootLoader,
 		1,
 		2*1024*1024*1024,
 	)
+	if err != nil {
+		log.Fatalf("failed to create virtual machine configuration: %s", err)
+	}
 
 	setRawMode(os.Stdin)
 
