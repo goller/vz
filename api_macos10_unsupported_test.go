@@ -4,6 +4,7 @@
 package vz
 
 import (
+	"net"
 	"os"
 	"testing"
 
@@ -34,5 +35,23 @@ func TestEntropy(t *testing.T) {
 
 func TestBalloon(t *testing.T) {
 	_, err := NewVirtioTraditionalMemoryBalloonDeviceConfiguration()
+	assert.ErrorIs(t, err, ErrUnsupportedOSVersion)
+}
+
+func TestNetwork(t *testing.T) {
+	_, err := NewNATNetworkDeviceAttachment()
+	assert.ErrorIs(t, err, ErrUnsupportedOSVersion)
+	//unimplemented
+	//NewBridgedNetworkDeviceAttachment(networkInterface BridgedNetwork)
+	udp := openUDPConn(t)
+	defer udp.Close()
+	_, err = NewFileHandleNetworkDeviceAttachment(udp)
+	assert.ErrorIs(t, err, ErrUnsupportedOSVersion)
+
+	hwaddr, err := net.ParseMAC("52:54:00:70:2b:71")
+	assert.NoError(t, err)
+	_, err = NewMACAddress(hwaddr)
+	assert.ErrorIs(t, err, ErrUnsupportedOSVersion)
+	_, err = NewRandomLocallyAdministeredMACAddress()
 	assert.ErrorIs(t, err, ErrUnsupportedOSVersion)
 }
