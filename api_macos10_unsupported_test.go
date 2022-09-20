@@ -23,3 +23,8 @@ func TestEntropy(t *testing.T) {
 	_, err := NewVirtioEntropyDeviceConfiguration()
 	assert.ErrorIs(t, err, ErrUnsupportedOSVersion)
 }
+
+func TestBalloon(t *testing.T) {
+	_, err := NewVirtioTraditionalMemoryBalloonDeviceConfiguration()
+	assert.ErrorIs(t, err, ErrUnsupportedOSVersion)
+}

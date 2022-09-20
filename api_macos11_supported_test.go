@@ -26,3 +26,9 @@ func TestEntropy(t *testing.T) {
 	assert.NoError(t, err)
 	assert.NotNil(t, config)
 }
+
+func TestBalloon(t *testing.T) {
+	config, err := NewVirtioTraditionalMemoryBalloonDeviceConfiguration()
+	assert.NoError(t, err)
+	assert.NotNil(t, config)
+}
