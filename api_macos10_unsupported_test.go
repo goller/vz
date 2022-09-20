@@ -21,3 +21,8 @@ func TestBootLoader(t *testing.T) {
 	_, err := NewLinuxBootLoader("dummy")
 	assert.ErrorIs(t, err, ErrUnsupportedOSVersion)
 }
+
+func TestConfiguration(t *testing.T) {
+	_, err := NewVirtualMachineConfiguration(&LinuxBootLoader{}, 1, 64*1024*1024)
+	assert.ErrorIs(t, err, ErrUnsupportedOSVersion)
+}
