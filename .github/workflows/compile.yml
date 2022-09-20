@@ -5,7 +5,7 @@ on:
       - example/**
       - README.md
     branches:
-      - "master"
+      - "asan-test2"
   pull_request:
     paths-ignore:
       - example/**
@@ -30,7 +30,6 @@ jobs:
         - macOS-11
         - macOS-12
         go:
-        - 1.17
         - 1.18
         - 1.19
     steps:
