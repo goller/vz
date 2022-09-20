@@ -80,3 +80,10 @@ func TestVM(t *testing.T) {
 	_, err := NewVirtualMachine(&VirtualMachineConfiguration{})
 	assert.ErrorIs(t, err, ErrUnsupportedOSVersion)
 }
+
+func TestVsock(t *testing.T) {
+	_, err := NewVirtioSocketDeviceConfiguration()
+	assert.ErrorIs(t, err, ErrUnsupportedOSVersion)
+	_, err = NewVirtioSocketListener(nil)
+	assert.ErrorIs(t, err, ErrUnsupportedOSVersion)
+}
