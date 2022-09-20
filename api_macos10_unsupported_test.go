@@ -67,3 +67,8 @@ func TestStorage(t *testing.T) {
 	_, err = NewVirtioBlockDeviceConfiguration(&DiskImageStorageDeviceAttachment{})
 	assert.ErrorIs(t, err, ErrUnsupportedOSVersion)
 }
+
+func TestVM(t *testing.T) {
+	_, err := NewVirtualMachine(&VirtualMachineConfiguration{})
+	assert.ErrorIs(t, err, ErrUnsupportedOSVersion)
+}
