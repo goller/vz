@@ -85,3 +85,12 @@ func TestVM(t *testing.T) {
 	vm := newTestVM(t)
 	assert.NotNil(t, vm)
 }
+
+func TestVsock(t *testing.T) {
+	vsock, err := NewVirtioSocketDeviceConfiguration()
+	assert.NoError(t, err)
+	assert.NotNil(t, vsock)
+	listener, err := NewVirtioSocketListener(nil)
+	assert.NoError(t, err)
+	assert.NotNil(t, listener)
+}
