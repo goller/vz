@@ -110,8 +110,12 @@ void setInitialRamdiskURLVZLinuxBootLoader(void *bootLoaderPtr, const char *ramd
  */
 bool validateVZVirtualMachineConfiguration(void *config, void **error)
 {
-    return (bool)[(VZVirtualMachineConfiguration *)config
-        validateWithError:(NSError *_Nullable *_Nullable)error];
+    if (@available(macOS 11, *)) {
+        return (bool)[(VZVirtualMachineConfiguration *)config
+            validateWithError:(NSError *_Nullable *_Nullable)error];
+    } else {
+        return false;
+    }
 }
 
 /*!
@@ -120,7 +124,11 @@ bool validateVZVirtualMachineConfiguration(void *config, void **error)
  */
 unsigned long long minimumAllowedMemorySizeVZVirtualMachineConfiguration()
 {
-    return (unsigned long long)[VZVirtualMachineConfiguration minimumAllowedMemorySize];
+    if (@available(macOS 11, *)) {
+        return (unsigned long long)[VZVirtualMachineConfiguration minimumAllowedMemorySize];
+    } else {
+        return 0;
+    }
 }
 
 /*!
@@ -129,7 +137,11 @@ unsigned long long minimumAllowedMemorySizeVZVirtualMachineConfiguration()
  */
 unsigned long long maximumAllowedMemorySizeVZVirtualMachineConfiguration()
 {
-    return (unsigned long long)[VZVirtualMachineConfiguration maximumAllowedMemorySize];
+    if (@available(macOS 11, *)) {
+        return (unsigned long long)[VZVirtualMachineConfiguration maximumAllowedMemorySize];
+    } else {
+        return 0;
+    }
 }
 
 /*!
@@ -138,7 +150,11 @@ unsigned long long maximumAllowedMemorySizeVZVirtualMachineConfiguration()
  */
 unsigned int minimumAllowedCPUCountVZVirtualMachineConfiguration()
 {
-    return (unsigned int)[VZVirtualMachineConfiguration minimumAllowedCPUCount];
+    if (@available(macOS 11, *)) {
+        return (unsigned int)[VZVirtualMachineConfiguration minimumAllowedCPUCount];
+    } else {
+        return 0;
+    }
 }
 
 /*!
@@ -147,7 +163,11 @@ unsigned int minimumAllowedCPUCountVZVirtualMachineConfiguration()
  */
 unsigned int maximumAllowedCPUCountVZVirtualMachineConfiguration()
 {
-    return (unsigned int)[VZVirtualMachineConfiguration maximumAllowedCPUCount];
+    if (@available(macOS 11, *)) {
+        return (unsigned int)[VZVirtualMachineConfiguration maximumAllowedCPUCount];
+    } else {
+        return 0;
+    }
 }
 
 /*!
@@ -176,11 +196,15 @@ void *newVZVirtualMachineConfiguration(void *bootLoaderPtr,
     unsigned int CPUCount,
     unsigned long long memorySize)
 {
-    VZVirtualMachineConfiguration *config = [[VZVirtualMachineConfiguration alloc] init];
-    [config setBootLoader:(VZLinuxBootLoader *)bootLoaderPtr];
-    [config setCPUCount:(NSUInteger)CPUCount];
-    [config setMemorySize:memorySize];
-    return config;
+    if (@available(macOS 11, *)) {
+        VZVirtualMachineConfiguration *config = [[VZVirtualMachineConfiguration alloc] init];
+        [config setBootLoader:(VZLinuxBootLoader *)bootLoaderPtr];
+        [config setCPUCount:(NSUInteger)CPUCount];
+        [config setMemorySize:memorySize];
+        return config;
+    } else {
+        return nil;
+    }
 }
 
 /*!
