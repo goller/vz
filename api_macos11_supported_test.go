@@ -69,3 +69,14 @@ func TestSerial(t *testing.T) {
 	assert.NoError(t, err)
 	assert.NotNil(t, console)
 }
+
+func TestStorage(t *testing.T) {
+	f := testFile(t, "storage", []byte{})
+	defer f.Close()
+	attachment, err := NewDiskImageStorageDeviceAttachment(f.Name(), true)
+	assert.NoError(t, err)
+	assert.NotNil(t, attachment)
+	storage, err := NewVirtioBlockDeviceConfiguration(attachment)
+	assert.NoError(t, err)
+	assert.NotNil(t, storage)
+}

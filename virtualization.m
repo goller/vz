@@ -266,7 +266,9 @@ void setSocketDevicesVZVirtualMachineConfiguration(void *config,
 void setStorageDevicesVZVirtualMachineConfiguration(void *config,
     void *storageDevices)
 {
-    [(VZVirtualMachineConfiguration *)config setStorageDevices:[(NSMutableArray *)storageDevices copy]];
+    if (@available(macOS 11, *)) {
+        [(VZVirtualMachineConfiguration *)config setStorageDevices:[(NSMutableArray *)storageDevices copy]];
+    }
 }
 /*!
  @abstract List of directory sharing devices. Empty by default.
@@ -614,7 +616,11 @@ void *newVZVirtioEntropyDeviceConfiguration()
  */
 void *newVZVirtioBlockDeviceConfiguration(void *attachment)
 {
-    return [[VZVirtioBlockDeviceConfiguration alloc] initWithAttachment:(VZStorageDeviceAttachment *)attachment];
+    if (@available(macOS 11, *)) {
+        return [[VZVirtioBlockDeviceConfiguration alloc] initWithAttachment:(VZStorageDeviceAttachment *)attachment];
+    } else {
+        return nil;
+    }
 }
 
 /*!
@@ -626,12 +632,16 @@ void *newVZVirtioBlockDeviceConfiguration(void *attachment)
  */
 void *newVZDiskImageStorageDeviceAttachment(const char *diskPath, bool readOnly, void **error)
 {
-    NSString *diskPathNSString = [NSString stringWithUTF8String:diskPath];
-    NSURL *diskURL = [NSURL fileURLWithPath:diskPathNSString];
-    return [[VZDiskImageStorageDeviceAttachment alloc]
-        initWithURL:diskURL
-           readOnly:(BOOL)readOnly
-              error:(NSError *_Nullable *_Nullable)error];
+    if (@available(macOS 11, *)) {
+        NSString *diskPathNSString = [NSString stringWithUTF8String:diskPath];
+        NSURL *diskURL = [NSURL fileURLWithPath:diskPathNSString];
+        return [[VZDiskImageStorageDeviceAttachment alloc]
+            initWithURL:diskURL
+               readOnly:(BOOL)readOnly
+                  error:(NSError *_Nullable *_Nullable)error];
+    } else {
+        return nil;
+    }
 }
 
 /*!
