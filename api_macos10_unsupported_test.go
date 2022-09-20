@@ -55,3 +55,14 @@ func TestNetwork(t *testing.T) {
 	_, err = NewRandomLocallyAdministeredMACAddress()
 	assert.ErrorIs(t, err, ErrUnsupportedOSVersion)
 }
+
+func TestSerial(t *testing.T) {
+	inoutFile := testFile(t, "serial-inout", []byte{})
+	defer inoutFile.Close()
+	_, err := NewFileHandleSerialPortAttachment(inoutFile, inoutFile)
+	assert.ErrorIs(t, err, ErrUnsupportedOSVersion)
+	_, err = NewFileSerialPortAttachment(inoutFile.Name(), true)
+	assert.ErrorIs(t, err, ErrUnsupportedOSVersion)
+	_, err = NewVirtioConsoleDeviceSerialPortConfiguration(&FileSerialPortAttachment{})
+	assert.ErrorIs(t, err, ErrUnsupportedOSVersion)
+}

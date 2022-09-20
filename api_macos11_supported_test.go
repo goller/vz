@@ -55,3 +55,17 @@ func TestNetwork(t *testing.T) {
 	assert.NoError(t, err)
 	assert.NotNil(t, mac)
 }
+
+func TestSerial(t *testing.T) {
+	inoutFile := testFile(t, "serial-inout", []byte{})
+	defer inoutFile.Close()
+	handleAttachment, err := NewFileHandleSerialPortAttachment(inoutFile, inoutFile)
+	assert.NoError(t, err)
+	assert.NotNil(t, handleAttachment)
+	fileAttachment, err := NewFileSerialPortAttachment(inoutFile.Name(), true)
+	assert.NoError(t, err)
+	assert.NotNil(t, fileAttachment)
+	console, err := NewVirtioConsoleDeviceSerialPortConfiguration(fileAttachment)
+	assert.NoError(t, err)
+	assert.NotNil(t, console)
+}
