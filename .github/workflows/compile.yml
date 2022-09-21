@@ -5,7 +5,7 @@ on:
       - example/**
       - README.md
     branches:
-      - "master"
+      - "macos10"
   pull_request:
     paths-ignore:
       - example/**
