@@ -72,3 +72,17 @@ jobs:
           go-version: 1.19
       - name: Test
         run: make test-macos11
+  test-macos10:
+    runs-on: macOS-10.15
+    steps:
+      - uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: '12.4'
+      - name: Check out repository code
+        uses: actions/checkout@v2
+      - name: Set up Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.19
+      - name: Test
+        run: make test-macos10
