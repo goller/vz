@@ -27,6 +27,7 @@ jobs:
       fail-fast: false
       matrix:
         os:
+        - macOS-11
         - macOS-12
         go:
         - 1.17
@@ -41,6 +42,10 @@ jobs:
           go-version: ${{ matrix.go }}
       - name: Build
         run: cd example/linux && make
+      - name: Test
+        run: make test
+      - name: Test (address sanitizer enabled)
+        run: make test-asan
       - name: vet
         run: go vet ./...
   test:

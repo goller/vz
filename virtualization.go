@@ -106,9 +106,9 @@ func NewVirtualMachine(config *VirtualMachineConfiguration) (*VirtualMachine, er
 		return nil, ErrUnsupportedOSVersion
 	}
 
-	// should not call Free function for this string.
 	cs := getUUID()
 	dispatchQueue := C.makeDispatchQueue(cs.CString())
+	cs.Free()
 
 	status := cgo.NewHandle(&machineStatus{
 		state:       VirtualMachineState(0),
