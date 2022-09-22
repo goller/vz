@@ -26,3 +26,8 @@ func TestConfiguration(t *testing.T) {
 	_, err := NewVirtualMachineConfiguration(&LinuxBootLoader{}, 1, 64*1024*1024)
 	assert.ErrorIs(t, err, ErrUnsupportedOSVersion)
 }
+
+func TestEntropy(t *testing.T) {
+	_, err := NewVirtioEntropyDeviceConfiguration()
+	assert.ErrorIs(t, err, ErrUnsupportedOSVersion)
+}
