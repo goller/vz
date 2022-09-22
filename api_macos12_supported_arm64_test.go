@@ -1,4 +1,5 @@
-//go:build !macos11
+//go:build !macos10 && !macos11
+// +build !macos10
 // +build !macos11
 
 package vz

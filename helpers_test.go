@@ -22,7 +22,8 @@ func (vm *testVM) Close() error {
 func newTestVM(t *testing.T) *testVM {
 	// use empty file as dummy kernel as we don't expect the VM to successfully start in our tests
 	tempKernelFile := testFile(t, "vz_vmlinuz_dummy", []byte{})
-	bootloader := NewLinuxBootLoader(tempKernelFile.Name())
+	bootloader, err := NewLinuxBootLoader(tempKernelFile.Name())
+	require.NoError(t, err)
 	config := NewVirtualMachineConfiguration(bootloader, 1, 64*1024*1024)
 	//passing the config below to NewVirtualMachine reproduces https://github.com/Code-Hex/vz/issues/43
 	//config := NewVirtualMachineConfiguration(&LinuxBootLoader{}, 1, 64*1024*1024)
