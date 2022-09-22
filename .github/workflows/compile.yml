@@ -59,6 +59,8 @@ jobs:
           go-version: 1.19
       - name: Test
         run: make test
+      - name: Test (address sanitizer enabled)
+        run: make test-asan
   test-macos11:
     runs-on: macOS-11
     steps:

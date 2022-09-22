@@ -1,4 +1,4 @@
-.PHONY: fmt test test-macos11 test-macos10 all
+.PHONY: fmt test test-asan test-macos11 test-macos10 all
 
 all: all-arm64 all-amd64
 
@@ -7,6 +7,11 @@ fmt:
 
 test:
 	@go test -c . -o vz.test
+	@codesign --entitlements ./example/linux/vz.entitlements -s - ./vz.test || true
+	@./vz.test
+
+test-asan:
+	@CGO_CFLAGS=-fsanitize=address CGO_LDFLAGS=-fsanitize=address go test -c . -o vz.test
 	@codesign --entitlements ./example/linux/vz.entitlements -s - ./vz.test || true
 	@./vz.test
 
