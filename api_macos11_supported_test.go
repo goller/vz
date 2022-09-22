@@ -20,3 +20,9 @@ func TestConfiguration(t *testing.T) {
 	assert.NoError(t, err)
 	assert.NotNil(t, config)
 }
+
+func TestEntropy(t *testing.T) {
+	config, err := NewVirtioEntropyDeviceConfiguration()
+	assert.NoError(t, err)
+	assert.NotNil(t, config)
+}
