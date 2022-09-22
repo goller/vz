@@ -137,7 +137,7 @@ type VirtioSocketListener struct {
 	pointer
 }
 
-type dup struct {
+type acceptedSocket struct {
 	conn *VirtioSocketConnection
 	err  error
 }
@@ -156,14 +156,14 @@ func NewVirtioSocketListener(handler func(conn *VirtioSocketConnection, err erro
 		},
 	}
 
-	dupCh := make(chan dup, 1)
+	acceptedSocketsCh := make(chan acceptedSocket, 1)
 	go func() {
-		for dup := range dupCh {
-			go handler(dup.conn, dup.err)
+		for s := range acceptedSocketsCh {
+			go handler(s.conn, s.err)
 		}
 	}()
 	shouldAcceptNewConnectionHandlers[ptr] = func(conn *VirtioSocketConnection, err error) bool {
-		dupCh <- dup{
+		acceptedSocketsCh <- acceptedSocket{
 			conn: conn,
 			err:  err,
 		}
@@ -245,28 +245,6 @@ func newVirtioSocketConnection(ptr unsafe.Pointer) (*VirtioSocketConnection, err
 	conn.file = os.NewFile((conn.fileDescriptor), id)
 
 	return conn, nil
-}
-
-func (v *VirtioSocketConnection) dup() (*VirtioSocketConnection, error) {
-	nfd, err := syscall.Dup(int(v.fileDescriptor))
-	if err != nil {
-		return nil, &net.OpError{
-			Op:     "dup",
-			Net:    "vsock",
-			Source: v.laddr,
-			Addr:   v.raddr,
-			Err:    err,
-		}
-	}
-
-	dupConn := new(VirtioSocketConnection)
-	*dupConn = *v
-	dupConn.fileDescriptor = uintptr(nfd)
-	dupConn.file = os.NewFile(uintptr(nfd), v.file.Name())
-	dupConn.laddr = v.laddr
-	dupConn.raddr = v.raddr
-
-	return dupConn, nil
 }
 
 // Read reads data from connection of the vsock protocol.
