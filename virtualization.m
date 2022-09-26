@@ -263,9 +263,9 @@ void setPlatformVZVirtualMachineConfiguration(void *config, void *platform)
  */
 void setGraphicsDevicesVZVirtualMachineConfiguration(void *config, void *graphicsDevices)
 {
-    if (@available(macOS 12, *)) {
-        [(VZVirtualMachineConfiguration *)config setGraphicsDevices:[(NSMutableArray *)graphicsDevices copy]];
-    }
+    THROW_IF_MACOS_OLDER_THAN(12)
+
+    [(VZVirtualMachineConfiguration *)config setGraphicsDevices:[(NSMutableArray *)graphicsDevices copy]];
 }
 
 /*!
