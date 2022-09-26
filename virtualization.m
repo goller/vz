@@ -44,11 +44,9 @@ char *copyCString(NSString *nss)
 @implementation VZVirtioSocketListenerDelegateImpl
 - (BOOL)listener:(void *)listener shouldAcceptNewConnection:(void *)connection fromSocketDevice:(void *)socketDevice;
 {
-    if (@available(macOS 11, *)) {
-        return (BOOL)shouldAcceptNewConnectionHandler((VZVirtioSocketListener *)listener, (VZVirtioSocketConnection *)connection, (VZVirtioSocketDevice *)socketDevice);
-    } else {
-        return false;
-    }
+    THROW_IF_MACOS_OLDER_THAN(11)
+
+    return (BOOL)shouldAcceptNewConnectionHandler((VZVirtioSocketListener *)listener, (VZVirtioSocketConnection *)connection, (VZVirtioSocketDevice *)socketDevice);
 }
 @end
 
@@ -252,9 +250,9 @@ void setSerialPortsVZVirtualMachineConfiguration(void *config,
 void setSocketDevicesVZVirtualMachineConfiguration(void *config,
     void *socketDevices)
 {
-    if (@available(macOS 11, *)) {
-        [(VZVirtualMachineConfiguration *)config setSocketDevices:[(NSMutableArray *)socketDevices copy]];
-    }
+    THROW_IF_MACOS_OLDER_THAN(11)
+
+    [(VZVirtualMachineConfiguration *)config setSocketDevices:[(NSMutableArray *)socketDevices copy]];
 }
 
 /*!
@@ -633,11 +631,9 @@ void *newVZVirtioTraditionalMemoryBalloonDeviceConfiguration()
  */
 void *newVZVirtioSocketDeviceConfiguration()
 {
-    if (@available(macOS 11, *)) {
-        return [[VZVirtioSocketDeviceConfiguration alloc] init];
-    } else {
-        return nil;
-    }
+    THROW_IF_MACOS_OLDER_THAN(11)
+
+    return [[VZVirtioSocketDeviceConfiguration alloc] init];
 }
 
 /*!
@@ -651,13 +647,11 @@ void *newVZVirtioSocketDeviceConfiguration()
  */
 void *newVZVirtioSocketListener()
 {
-    if (@available(macOS 11, *)) {
-        VZVirtioSocketListener *ret = [[VZVirtioSocketListener alloc] init];
-        [ret setDelegate:[[VZVirtioSocketListenerDelegateImpl alloc] init]];
-        return ret;
-    } else {
-        return nil;
-    }
+    THROW_IF_MACOS_OLDER_THAN(11)
+
+    VZVirtioSocketListener *ret = [[VZVirtioSocketListener alloc] init];
+    [ret setDelegate:[[VZVirtioSocketListenerDelegateImpl alloc] init]];
+    return ret;
 }
 
 /*!
@@ -671,11 +665,11 @@ void *newVZVirtioSocketListener()
  */
 void VZVirtioSocketDevice_setSocketListenerForPort(void *socketDevice, void *vmQueue, void *listener, uint32_t port)
 {
-    if (@available(macOS 11, *)) {
-        dispatch_sync((dispatch_queue_t)vmQueue, ^{
-            [(VZVirtioSocketDevice *)socketDevice setSocketListener:(VZVirtioSocketListener *)listener forPort:port];
-        });
-    }
+    THROW_IF_MACOS_OLDER_THAN(11)
+
+    dispatch_sync((dispatch_queue_t)vmQueue, ^{
+        [(VZVirtioSocketDevice *)socketDevice setSocketListener:(VZVirtioSocketListener *)listener forPort:port];
+    });
 }
 
 /*!
@@ -685,11 +679,11 @@ void VZVirtioSocketDevice_setSocketListenerForPort(void *socketDevice, void *vmQ
  */
 void VZVirtioSocketDevice_removeSocketListenerForPort(void *socketDevice, void *vmQueue, uint32_t port)
 {
-    if (@available(macOS 11, *)) {
-        dispatch_sync((dispatch_queue_t)vmQueue, ^{
-            [(VZVirtioSocketDevice *)socketDevice removeSocketListenerForPort:port];
-        });
-    }
+    THROW_IF_MACOS_OLDER_THAN(11)
+
+    dispatch_sync((dispatch_queue_t)vmQueue, ^{
+        [(VZVirtioSocketDevice *)socketDevice removeSocketListenerForPort:port];
+    });
 }
 
 /*!
@@ -701,24 +695,25 @@ void VZVirtioSocketDevice_removeSocketListenerForPort(void *socketDevice, void *
  */
 void VZVirtioSocketDevice_connectToPort(void *socketDevice, void *vmQueue, uint32_t port, void *cgoHandlerPtr)
 {
-    if (@available(macOS 11, *)) {
-        dispatch_sync((dispatch_queue_t)vmQueue, ^{
-            [(VZVirtioSocketDevice *)socketDevice connectToPort:port
-                                              completionHandler:^(VZVirtioSocketConnection *connection, NSError *err) {
-                                                  connectionHandler(connection, err, cgoHandlerPtr);
-                                              }];
-        });
-    }
+    THROW_IF_MACOS_OLDER_THAN(11)
+
+    dispatch_sync((dispatch_queue_t)vmQueue, ^{
+        [(VZVirtioSocketDevice *)socketDevice connectToPort:port
+                                          completionHandler:^(VZVirtioSocketConnection *connection, NSError *err) {
+                                              connectionHandler(connection, err, cgoHandlerPtr);
+                                          }];
+    });
 }
 
 VZVirtioSocketConnectionFlat convertVZVirtioSocketConnection2Flat(void *connection)
 {
+    THROW_IF_MACOS_OLDER_THAN(11)
+
     VZVirtioSocketConnectionFlat ret;
-    if (@available(macOS 11, *)) {
-        ret.sourcePort = [(VZVirtioSocketConnection *)connection sourcePort];
-        ret.destinationPort = [(VZVirtioSocketConnection *)connection destinationPort];
-        ret.fileDescriptor = [(VZVirtioSocketConnection *)connection fileDescriptor];
-    }
+    ret.sourcePort = [(VZVirtioSocketConnection *)connection sourcePort];
+    ret.destinationPort = [(VZVirtioSocketConnection *)connection destinationPort];
+    ret.fileDescriptor = [(VZVirtioSocketConnection *)connection fileDescriptor];
+
     return ret;
 }
 
@@ -755,11 +750,9 @@ void *newVZVirtualMachineWithDispatchQueue(void *config, void *queue, void *stat
  */
 void *VZVirtualMachine_socketDevices(void *machine)
 {
-    if (@available(macOS 11, *)) {
-        return [(VZVirtualMachine *)machine socketDevices]; // NSArray<VZSocketDevice *>
-    } else {
-        return nil;
-    }
+    THROW_IF_MACOS_OLDER_THAN(11)
+
+    return [(VZVirtualMachine *)machine socketDevices]; // NSArray<VZSocketDevice *>
 }
 
 /*!
