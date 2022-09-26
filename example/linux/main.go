@@ -178,7 +178,7 @@ func main() {
 				log.Println("request stop error:", err)
 				return
 			}
-			log.Println("recieved signal", result)
+			log.Println("received signal", result)
 		case newState := <-vm.StateChangedNotify():
 			if newState == vz.VirtualMachineStateRunning {
 				log.Println("start VM is running")
