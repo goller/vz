@@ -200,9 +200,9 @@ void *newVZVirtualMachineConfiguration(void *bootLoaderPtr,
 void setEntropyDevicesVZVirtualMachineConfiguration(void *config,
     void *entropyDevices)
 {
-    if (@available(macOS 11, *)) {
-        [(VZVirtualMachineConfiguration *)config setEntropyDevices:[(NSMutableArray *)entropyDevices copy]];
-    }
+    THROW_IF_MACOS_OLDER_THAN(11)
+
+    [(VZVirtualMachineConfiguration *)config setEntropyDevices:[(NSMutableArray *)entropyDevices copy]];
 }
 
 /*!
@@ -545,11 +545,9 @@ void *newVZVirtioNetworkDeviceConfiguration(void *attachment)
 */
 void *newVZVirtioEntropyDeviceConfiguration()
 {
-    if (@available(macOS 11, *)) {
-        return [[VZVirtioEntropyDeviceConfiguration alloc] init];
-    } else {
-        return nil;
-    }
+    THROW_IF_MACOS_OLDER_THAN(11)
+
+    return [[VZVirtioEntropyDeviceConfiguration alloc] init];
 }
 
 /*!
