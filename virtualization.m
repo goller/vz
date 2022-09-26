@@ -35,6 +35,12 @@ char *copyCString(NSString *nss)
 }
 @end
 
+#define THROW_IF_MACOS_OLDER_THAN(version) \
+    if (@available(macOS version, *)) { \
+    } else { \
+        [[NSException exceptionWithName:@"UnhandledException" reason:@"bug" userInfo:nil] raise]; \
+    }
+
 @implementation VZVirtioSocketListenerDelegateImpl
 - (BOOL)listener:(VZVirtioSocketListener *)listener shouldAcceptNewConnection:(VZVirtioSocketConnection *)connection fromSocketDevice:(VZVirtioSocketDevice *)socketDevice;
 {
