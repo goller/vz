@@ -224,9 +224,9 @@ void setMemoryBalloonDevicesVZVirtualMachineConfiguration(void *config,
 void setNetworkDevicesVZVirtualMachineConfiguration(void *config,
     void *networkDevices)
 {
-    if (@available(macOS 11, *)) {
-        [(VZVirtualMachineConfiguration *)config setNetworkDevices:[(NSMutableArray *)networkDevices copy]];
-    }
+    THROW_IF_MACOS_OLDER_THAN(11)
+
+    [(VZVirtualMachineConfiguration *)config setNetworkDevices:[(NSMutableArray *)networkDevices copy]];
 }
 
 /*!
@@ -476,11 +476,9 @@ void *newVZVirtioConsoleDeviceSerialPortConfiguration(void *attachment)
  */
 void *newVZBridgedNetworkDeviceAttachment(void *networkInterface)
 {
-    if (@available(macOS 11, *)) {
-        return [[VZBridgedNetworkDeviceAttachment alloc] initWithInterface:(VZBridgedNetworkInterface *)networkInterface];
-    } else {
-        return nil;
-    }
+    THROW_IF_MACOS_OLDER_THAN(11)
+
+    return [[VZBridgedNetworkDeviceAttachment alloc] initWithInterface:(VZBridgedNetworkInterface *)networkInterface];
 }
 
 /*!
@@ -493,11 +491,9 @@ void *newVZBridgedNetworkDeviceAttachment(void *networkInterface)
  */
 void *newVZNATNetworkDeviceAttachment()
 {
-    if (@available(macOS 11, *)) {
-        return [[VZNATNetworkDeviceAttachment alloc] init];
-    } else {
-        return nil;
-    }
+    THROW_IF_MACOS_OLDER_THAN(11)
+
+    return [[VZNATNetworkDeviceAttachment alloc] init];
 }
 
 /*!
@@ -513,16 +509,14 @@ void *newVZNATNetworkDeviceAttachment()
  */
 void *newVZFileHandleNetworkDeviceAttachment(int fileDescriptor)
 {
-    if (@available(macOS 11, *)) {
-        VZFileHandleNetworkDeviceAttachment *ret;
-        @autoreleasepool {
-            NSFileHandle *fileHandle = [[NSFileHandle alloc] initWithFileDescriptor:fileDescriptor];
-            ret = [[VZFileHandleNetworkDeviceAttachment alloc] initWithFileHandle:fileHandle];
-        }
-        return ret;
-    } else {
-        return nil;
+    THROW_IF_MACOS_OLDER_THAN(11)
+
+    VZFileHandleNetworkDeviceAttachment *ret;
+    @autoreleasepool {
+        NSFileHandle *fileHandle = [[NSFileHandle alloc] initWithFileDescriptor:fileDescriptor];
+        ret = [[VZFileHandleNetworkDeviceAttachment alloc] initWithFileHandle:fileHandle];
     }
+        return ret;
 }
 
 /*!
@@ -550,13 +544,11 @@ void *newVZFileHandleNetworkDeviceAttachment(int fileDescriptor)
  */
 void *newVZVirtioNetworkDeviceConfiguration(void *attachment)
 {
-    if (@available(macOS 11, *)) {
-        VZVirtioNetworkDeviceConfiguration *config = [[VZVirtioNetworkDeviceConfiguration alloc] init];
-        [config setAttachment:(VZNetworkDeviceAttachment *)attachment];
-        return config;
-    } else {
-        return nil;
-    }
+    THROW_IF_MACOS_OLDER_THAN(11)
+
+    VZVirtioNetworkDeviceConfiguration *config = [[VZVirtioNetworkDeviceConfiguration alloc] init];
+    [config setAttachment:(VZNetworkDeviceAttachment *)attachment];
+    return config;
 }
 
 /*!
@@ -739,16 +731,14 @@ void *VZVirtualMachine_socketDevices(void *machine)
  */
 void *newVZMACAddress(const char *macAddress)
 {
-    if (@available(macOS 11, *)) {
-        VZMACAddress *ret;
-        @autoreleasepool {
-            NSString *str = [NSString stringWithUTF8String:macAddress];
-            ret = [[VZMACAddress alloc] initWithString:str];
-        }
-        return ret;
-    } else {
-        return nil;
+    THROW_IF_MACOS_OLDER_THAN(11)
+
+    VZMACAddress *ret;
+    @autoreleasepool {
+        NSString *str = [NSString stringWithUTF8String:macAddress];
+        ret = [[VZMACAddress alloc] initWithString:str];
     }
+    return ret;
 }
 
 /*!
@@ -757,11 +747,9 @@ void *newVZMACAddress(const char *macAddress)
  */
 void *newRandomLocallyAdministeredVZMACAddress()
 {
-    if (@available(macOS 11, *)) {
-        return [VZMACAddress randomLocallyAdministeredAddress];
-    } else {
-        return nil;
-    }
+    THROW_IF_MACOS_OLDER_THAN(11)
+
+    return [VZMACAddress randomLocallyAdministeredAddress];
 }
 
 /*!
@@ -769,9 +757,9 @@ void *newRandomLocallyAdministeredVZMACAddress()
  */
 void setNetworkDevicesVZMACAddress(void *config, void *macAddress)
 {
-    if (@available(macOS 11, *)) {
-        [(VZNetworkDeviceConfiguration *)config setMACAddress:[(VZMACAddress *)macAddress copy]];
-    }
+    THROW_IF_MACOS_OLDER_THAN(11)
+
+    [(VZNetworkDeviceConfiguration *)config setMACAddress:[(VZMACAddress *)macAddress copy]];
 }
 
 /*!
@@ -784,11 +772,9 @@ void setNetworkDevicesVZMACAddress(void *config, void *macAddress)
  */
 const char *getVZMACAddressString(void *macAddress)
 {
-    if (@available(macOS 11, *)) {
-        return [[(VZMACAddress *)macAddress string] UTF8String];
-    } else {
-        return nil;
-    }
+    THROW_IF_MACOS_OLDER_THAN(11)
+
+    return [[(VZMACAddress *)macAddress string] UTF8String];
 }
 
 /*!
