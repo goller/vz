@@ -711,21 +711,19 @@ VZVirtioSocketConnectionFlat convertVZVirtioSocketConnection2Flat(void *connecti
  */
 void *newVZVirtualMachineWithDispatchQueue(void *config, void *queue, void *statusHandler)
 {
-    if (@available(macOS 11, *)) {
-        VZVirtualMachine *vm = [[VZVirtualMachine alloc]
-            initWithConfiguration:(VZVirtualMachineConfiguration *)config
-                            queue:(dispatch_queue_t)queue];
-        @autoreleasepool {
-            Observer *o = [[Observer alloc] init];
-            [vm addObserver:o
-                 forKeyPath:@"state"
-                    options:NSKeyValueObservingOptionNew
-                    context:statusHandler];
-        }
-        return vm;
-    } else {
-        return nil;
+    THROW_IF_MACOS_OLDER_THAN(11)
+
+    VZVirtualMachine *vm = [[VZVirtualMachine alloc]
+        initWithConfiguration:(VZVirtualMachineConfiguration *)config
+                        queue:(dispatch_queue_t)queue];
+    @autoreleasepool {
+        Observer *o = [[Observer alloc] init];
+        [vm addObserver:o
+             forKeyPath:@"state"
+                options:NSKeyValueObservingOptionNew
+                context:statusHandler];
     }
+    return vm;
 }
 
 /*!
