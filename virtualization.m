@@ -916,15 +916,13 @@ void *newVZUSBKeyboardConfiguration()
  */
 bool requestStopVirtualMachine(void *machine, void *queue, void **error)
 {
-    if (@available(macOS 11, *)) {
-        __block BOOL ret;
-        dispatch_sync((dispatch_queue_t)queue, ^{
-            ret = [(VZVirtualMachine *)machine requestStopWithError:(NSError *_Nullable *_Nullable)error];
-        });
-        return (bool)ret;
-    } else {
-        return false;
-    }
+    THROW_IF_MACOS_OLDER_THAN(11)
+
+    __block BOOL ret;
+    dispatch_sync((dispatch_queue_t)queue, ^{
+        ret = [(VZVirtualMachine *)machine requestStopWithError:(NSError *_Nullable *_Nullable)error];
+    });
+    return (bool)ret;
 }
 
 void *makeDispatchQueue(const char *label)
@@ -937,112 +935,102 @@ void *makeDispatchQueue(const char *label)
 
 void startWithCompletionHandler(void *machine, void *queue, void *completionHandler)
 {
-    if (@available(macOS 11, *)) {
-        dispatch_sync((dispatch_queue_t)queue, ^{
-            [(VZVirtualMachine *)machine startWithCompletionHandler:^(NSError *err) {
-                virtualMachineCompletionHandler(completionHandler, err);
-            }];
-        });
-    }
+    THROW_IF_MACOS_OLDER_THAN(11)
+
+    dispatch_sync((dispatch_queue_t)queue, ^{
+        [(VZVirtualMachine *)machine startWithCompletionHandler:^(NSError *err) {
+            virtualMachineCompletionHandler(completionHandler, err);
+        }];
+    });
 }
 
 void pauseWithCompletionHandler(void *machine, void *queue, void *completionHandler)
 {
-    if (@available(macOS 11, *)) {
-        dispatch_sync((dispatch_queue_t)queue, ^{
-            [(VZVirtualMachine *)machine pauseWithCompletionHandler:^(NSError *err) {
-                virtualMachineCompletionHandler(completionHandler, err);
-            }];
-        });
-    }
+    THROW_IF_MACOS_OLDER_THAN(11)
+
+    dispatch_sync((dispatch_queue_t)queue, ^{
+        [(VZVirtualMachine *)machine pauseWithCompletionHandler:^(NSError *err) {
+            virtualMachineCompletionHandler(completionHandler, err);
+        }];
+    });
 }
 
 void resumeWithCompletionHandler(void *machine, void *queue, void *completionHandler)
 {
-    if (@available(macOS 11, *)) {
-        dispatch_sync((dispatch_queue_t)queue, ^{
-            [(VZVirtualMachine *)machine resumeWithCompletionHandler:^(NSError *err) {
-                virtualMachineCompletionHandler(completionHandler, err);
-            }];
-        });
-    }
+    THROW_IF_MACOS_OLDER_THAN(11)
+
+    dispatch_sync((dispatch_queue_t)queue, ^{
+        [(VZVirtualMachine *)machine resumeWithCompletionHandler:^(NSError *err) {
+            virtualMachineCompletionHandler(completionHandler, err);
+        }];
+    });
 }
 
 void stopWithCompletionHandler(void *machine, void *queue, void *completionHandler)
 {
-    if (@available(macOS 12, *)) {
-        dispatch_sync((dispatch_queue_t)queue, ^{
-            [(VZVirtualMachine *)machine stopWithCompletionHandler:^(NSError *err) {
-                virtualMachineCompletionHandler(completionHandler, err);
-            }];
-        });
-    }
+    THROW_IF_MACOS_OLDER_THAN(12)
+
+    dispatch_sync((dispatch_queue_t)queue, ^{
+        [(VZVirtualMachine *)machine stopWithCompletionHandler:^(NSError *err) {
+            virtualMachineCompletionHandler(completionHandler, err);
+        }];
+    });
 }
 
 // TODO(codehex): use KVO
 bool vmCanStart(void *machine, void *queue)
 {
-    if (@available(macOS 11, *)) {
-        __block BOOL result;
-        dispatch_sync((dispatch_queue_t)queue, ^{
-            result = ((VZVirtualMachine *)machine).canStart;
-        });
-        return (bool)result;
-    } else {
-        return false;
-    }
+    THROW_IF_MACOS_OLDER_THAN(11)
+
+    __block BOOL result;
+    dispatch_sync((dispatch_queue_t)queue, ^{
+        result = ((VZVirtualMachine *)machine).canStart;
+    });
+    return (bool)result;
 }
 
 bool vmCanPause(void *machine, void *queue)
 {
-    if (@available(macOS 11, *)) {
-        __block BOOL result;
-        dispatch_sync((dispatch_queue_t)queue, ^{
-            result = ((VZVirtualMachine *)machine).canPause;
-        });
-        return (bool)result;
-    } else {
-        return false;
-    }
+    THROW_IF_MACOS_OLDER_THAN(11)
+
+    __block BOOL result;
+    dispatch_sync((dispatch_queue_t)queue, ^{
+        result = ((VZVirtualMachine *)machine).canPause;
+    });
+    return (bool)result;
 }
 
 bool vmCanResume(void *machine, void *queue)
 {
-    if (@available(macOS 11, *)) {
-        __block BOOL result;
-        dispatch_sync((dispatch_queue_t)queue, ^{
-            result = ((VZVirtualMachine *)machine).canResume;
-        });
-        return (bool)result;
-    } else {
-        return false;
-    }
+    THROW_IF_MACOS_OLDER_THAN(11)
+
+    __block BOOL result;
+    dispatch_sync((dispatch_queue_t)queue, ^{
+        result = ((VZVirtualMachine *)machine).canResume;
+    });
+    return (bool)result;
 }
 
 bool vmCanRequestStop(void *machine, void *queue)
 {
-    if (@available(macOS 11, *)) {
-        __block BOOL result;
-        dispatch_sync((dispatch_queue_t)queue, ^{
-            result = ((VZVirtualMachine *)machine).canRequestStop;
-        });
-        return (bool)result;
-    } else {
-        return false;
-    }
+    THROW_IF_MACOS_OLDER_THAN(11)
+
+    __block BOOL result;
+    dispatch_sync((dispatch_queue_t)queue, ^{
+        result = ((VZVirtualMachine *)machine).canRequestStop;
+    });
+    return (bool)result;
 }
 
 bool vmCanStop(void *machine, void *queue)
 {
-    if (@available(macOS 12, *)) {
-        __block BOOL result;
-        dispatch_sync((dispatch_queue_t)queue, ^{
-            result = ((VZVirtualMachine *)machine).canStop;
-        });
-        return (bool)result;
-    } else {
-        return false;
-    }
+    THROW_IF_MACOS_OLDER_THAN(12)
+
+    __block BOOL result;
+    dispatch_sync((dispatch_queue_t)queue, ^{
+        result = ((VZVirtualMachine *)machine).canStop;
+    });
+    return (bool)result;
 }
 // --- TODO end
 
