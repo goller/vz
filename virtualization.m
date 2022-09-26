@@ -252,9 +252,9 @@ void setDirectorySharingDevicesVZVirtualMachineConfiguration(void *config, void 
  */
 void setPlatformVZVirtualMachineConfiguration(void *config, void *platform)
 {
-    if (@available(macOS 12, *)) {
-        [(VZVirtualMachineConfiguration *)config setPlatform:(VZPlatformConfiguration *)platform];
-    }
+    THROW_IF_MACOS_OLDER_THAN(12)
+
+    [(VZVirtualMachineConfiguration *)config setPlatform:(VZPlatformConfiguration *)platform];
 }
 
 /*!
@@ -355,11 +355,9 @@ void *newVZVirtioSoundDeviceHostOutputStreamConfiguration()
 */
 void *newVZGenericPlatformConfiguration()
 {
-    if (@available(macOS 12, *)) {
-        return [[VZGenericPlatformConfiguration alloc] init];
-    } else {
-        return nil;
-    }
+    THROW_IF_MACOS_OLDER_THAN(12)
+
+    return [[VZGenericPlatformConfiguration alloc] init];
 }
 
 /*!
