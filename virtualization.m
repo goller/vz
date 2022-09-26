@@ -212,9 +212,9 @@ void setEntropyDevicesVZVirtualMachineConfiguration(void *config,
 void setMemoryBalloonDevicesVZVirtualMachineConfiguration(void *config,
     void *memoryBalloonDevices)
 {
-    if (@available(macOS 11, *)) {
-        [(VZVirtualMachineConfiguration *)config setMemoryBalloonDevices:[(NSMutableArray *)memoryBalloonDevices copy]];
-    }
+    THROW_IF_MACOS_OLDER_THAN(11)
+
+    [(VZVirtualMachineConfiguration *)config setMemoryBalloonDevices:[(NSMutableArray *)memoryBalloonDevices copy]];
 }
 
 /*!
@@ -588,11 +588,9 @@ void *newVZDiskImageStorageDeviceAttachment(const char *diskPath, bool readOnly,
  */
 void *newVZVirtioTraditionalMemoryBalloonDeviceConfiguration()
 {
-    if (@available(macOS 11, *)) {
-        return [[VZVirtioTraditionalMemoryBalloonDeviceConfiguration alloc] init];
-    } else {
-        return nil;
-    }
+    THROW_IF_MACOS_OLDER_THAN(11)
+
+    return [[VZVirtioTraditionalMemoryBalloonDeviceConfiguration alloc] init];
 }
 
 /*!
