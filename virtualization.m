@@ -240,9 +240,9 @@ void setStorageDevicesVZVirtualMachineConfiguration(void *config,
  */
 void setDirectorySharingDevicesVZVirtualMachineConfiguration(void *config, void *directorySharingDevices)
 {
-    if (@available(macOS 12, *)) {
-        [(VZVirtualMachineConfiguration *)config setDirectorySharingDevices:[(NSMutableArray *)directorySharingDevices copy]];
-    }
+    THROW_IF_MACOS_OLDER_THAN(12)
+
+    [(VZVirtualMachineConfiguration *)config setDirectorySharingDevices:[(NSMutableArray *)directorySharingDevices copy]];
 }
 
 /*!
@@ -719,17 +719,15 @@ const char *getVZMACAddressString(void *macAddress)
  */
 void *newVZSharedDirectory(const char *dirPath, bool readOnly)
 {
-    if (@available(macOS 12, *)) {
-        VZSharedDirectory *ret;
-        @autoreleasepool {
-            NSString *dirPathNSString = [NSString stringWithUTF8String:dirPath];
-            NSURL *dirURL = [NSURL fileURLWithPath:dirPathNSString];
-            ret = [[VZSharedDirectory alloc] initWithURL:dirURL readOnly:(BOOL)readOnly];
-        }
-        return ret;
-    } else {
-        return nil;
+    THROW_IF_MACOS_OLDER_THAN(12)
+
+    VZSharedDirectory *ret;
+    @autoreleasepool {
+        NSString *dirPathNSString = [NSString stringWithUTF8String:dirPath];
+        NSURL *dirURL = [NSURL fileURLWithPath:dirPathNSString];
+        ret = [[VZSharedDirectory alloc] initWithURL:dirURL readOnly:(BOOL)readOnly];
     }
+    return ret;
 }
 
 /*!
@@ -740,11 +738,9 @@ void *newVZSharedDirectory(const char *dirPath, bool readOnly)
  */
 void *newVZSingleDirectoryShare(void *sharedDirectory)
 {
-    if (@available(macOS 12, *)) {
-        return [[VZSingleDirectoryShare alloc] initWithDirectory:(VZSharedDirectory *)sharedDirectory];
-    } else {
-        return nil;
-    }
+    THROW_IF_MACOS_OLDER_THAN(12)
+
+    return [[VZSingleDirectoryShare alloc] initWithDirectory:(VZSharedDirectory *)sharedDirectory];
 }
 
 /*!
@@ -755,11 +751,9 @@ void *newVZSingleDirectoryShare(void *sharedDirectory)
  */
 void *newVZMultipleDirectoryShare(void *sharedDirectories)
 {
-    if (@available(macOS 12, *)) {
-        return [[VZMultipleDirectoryShare alloc] initWithDirectories:(NSDictionary<NSString *, VZSharedDirectory *> *)sharedDirectories];
-    } else {
-        return nil;
-    }
+    THROW_IF_MACOS_OLDER_THAN(12)
+
+    return [[VZMultipleDirectoryShare alloc] initWithDirectories:(NSDictionary<NSString *, VZSharedDirectory *> *)sharedDirectories];
 }
 
 /*!
@@ -770,16 +764,14 @@ void *newVZMultipleDirectoryShare(void *sharedDirectories)
  */
 void *newVZVirtioFileSystemDeviceConfiguration(const char *tag)
 {
-    if (@available(macOS 12, *)) {
-        VZVirtioFileSystemDeviceConfiguration *ret;
-        @autoreleasepool {
-            NSString *tagNSString = [NSString stringWithUTF8String:tag];
-            ret = [[VZVirtioFileSystemDeviceConfiguration alloc] initWithTag:tagNSString];
-        }
-        return ret;
-    } else {
-        return nil;
+    THROW_IF_MACOS_OLDER_THAN(12)
+
+    VZVirtioFileSystemDeviceConfiguration *ret;
+    @autoreleasepool {
+        NSString *tagNSString = [NSString stringWithUTF8String:tag];
+        ret = [[VZVirtioFileSystemDeviceConfiguration alloc] initWithTag:tagNSString];
     }
+    return ret;
 }
 
 /*!
@@ -787,9 +779,9 @@ void *newVZVirtioFileSystemDeviceConfiguration(const char *tag)
  */
 void setVZVirtioFileSystemDeviceConfigurationShare(void *config, void *share)
 {
-    if (@available(macOS 12, *)) {
-        [(VZVirtioFileSystemDeviceConfiguration *)config setShare:(VZDirectoryShare *)share];
-    }
+    THROW_IF_MACOS_OLDER_THAN(12)
+
+    [(VZVirtioFileSystemDeviceConfiguration *)config setShare:(VZDirectoryShare *)share];
 }
 
 /*!
