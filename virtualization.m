@@ -54,17 +54,15 @@ char *copyCString(NSString *nss)
 */
 void *newVZLinuxBootLoader(const char *kernelPath)
 {
-    if (@available(macOS 11, *)) {
-        VZLinuxBootLoader *ret;
-        @autoreleasepool {
-            NSString *kernelPathNSString = [NSString stringWithUTF8String:kernelPath];
-            NSURL *kernelURL = [NSURL fileURLWithPath:kernelPathNSString];
-            ret = [[VZLinuxBootLoader alloc] initWithKernelURL:kernelURL];
-        }
-        return ret;
-    } else {
-            return nil;
+    THROW_IF_MACOS_OLDER_THAN(11)
+
+    VZLinuxBootLoader *ret;
+    @autoreleasepool {
+        NSString *kernelPathNSString = [NSString stringWithUTF8String:kernelPath];
+        NSURL *kernelURL = [NSURL fileURLWithPath:kernelPathNSString];
+        ret = [[VZLinuxBootLoader alloc] initWithKernelURL:kernelURL];
     }
+    return ret;
 }
 
 /*!
@@ -75,12 +73,12 @@ void *newVZLinuxBootLoader(const char *kernelPath)
  */
 void setCommandLineVZLinuxBootLoader(void *bootLoaderPtr, const char *commandLine)
 {
-    if (@available(macOS 11, *)) {
-        VZLinuxBootLoader *bootLoader = (VZLinuxBootLoader *)bootLoaderPtr;
-        @autoreleasepool {
-            NSString *commandLineNSString = [NSString stringWithUTF8String:commandLine];
-            [bootLoader setCommandLine:commandLineNSString];
-        }
+    THROW_IF_MACOS_OLDER_THAN(11)
+
+    VZLinuxBootLoader *bootLoader = (VZLinuxBootLoader *)bootLoaderPtr;
+    @autoreleasepool {
+        NSString *commandLineNSString = [NSString stringWithUTF8String:commandLine];
+        [bootLoader setCommandLine:commandLineNSString];
     }
 }
 
@@ -92,13 +90,13 @@ void setCommandLineVZLinuxBootLoader(void *bootLoaderPtr, const char *commandLin
  */
 void setInitialRamdiskURLVZLinuxBootLoader(void *bootLoaderPtr, const char *ramdiskPath)
 {
-    if (@available(macOS 11, *)) {
-        VZLinuxBootLoader *bootLoader = (VZLinuxBootLoader *)bootLoaderPtr;
-        @autoreleasepool {
-            NSString *ramdiskPathNSString = [NSString stringWithUTF8String:ramdiskPath];
-            NSURL *ramdiskURL = [NSURL fileURLWithPath:ramdiskPathNSString];
-            [bootLoader setInitialRamdiskURL:ramdiskURL];
-        }
+    THROW_IF_MACOS_OLDER_THAN(11)
+
+    VZLinuxBootLoader *bootLoader = (VZLinuxBootLoader *)bootLoaderPtr;
+    @autoreleasepool {
+        NSString *ramdiskPathNSString = [NSString stringWithUTF8String:ramdiskPath];
+        NSURL *ramdiskURL = [NSURL fileURLWithPath:ramdiskPathNSString];
+        [bootLoader setInitialRamdiskURL:ramdiskURL];
     }
 }
 
@@ -111,11 +109,12 @@ void setInitialRamdiskURLVZLinuxBootLoader(void *bootLoaderPtr, const char *ramd
 bool validateVZVirtualMachineConfiguration(void *config, void **error)
 {
     if (@available(macOS 11, *)) {
-        return (bool)[(VZVirtualMachineConfiguration *)config
-            validateWithError:(NSError *_Nullable *_Nullable)error];
     } else {
-        return false;
+        [[NSException exceptionWithName:@"UnhandledException" reason:@"bug" userInfo:nil] raise];
     }
+
+    return (bool)[(VZVirtualMachineConfiguration *)config
+        validateWithError:(NSError *_Nullable *_Nullable)error];
 }
 
 /*!
