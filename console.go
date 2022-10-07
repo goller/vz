@@ -90,6 +90,7 @@ func NewFileSerialPortAttachment(path string, shouldAppend bool) (*FileSerialPor
 		},
 	}
 	if err := newNSError(nserrPtr); err != nil {
+		err.Release()
 		return nil, err
 	}
 	runtime.SetFinalizer(attachment, func(self *FileSerialPortAttachment) {

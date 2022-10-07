@@ -71,6 +71,7 @@ func (v *VirtualMachineConfiguration) Validate() (bool, error) {
 	ret := C.validateVZVirtualMachineConfiguration(v.Ptr(), &nserrPtr)
 	err := newNSError(nserrPtr)
 	if err != nil {
+		err.Release()
 		return false, err
 	}
 	return (bool)(ret), nil

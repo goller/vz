@@ -236,7 +236,8 @@ func newNSError(p unsafe.Pointer) *NSError {
 		Domain:               (*char)(nsError.domain).String(),
 		Code:                 int((nsError.code)),
 		LocalizedDescription: (*char)(nsError.localizedDescription).String(),
-		UserInfo:             (*char)(nsError.userinfo).String(), // NOTE(codehex): maybe we can convert to map[string]interface{}
+		UserInfo:             (*char)(nsError.userinfo).String(), // NOTE(codehex): maybe we can convert to map[string]interface{},
+		pointer:              pointer{ptr: p},
 	}
 }
 

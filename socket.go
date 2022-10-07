@@ -101,6 +101,7 @@ func connectionHandler(connPtr, errPtr, cgoHandlerPtr unsafe.Pointer) {
 	// see: startHandler
 	conn := newVirtioSocketConnection(connPtr)
 	if err := newNSError(errPtr); err != nil {
+		err.Release()
 		handler(conn, err)
 	} else {
 		handler(conn, nil)

@@ -56,6 +56,7 @@ func NewDiskImageStorageDeviceAttachment(diskPath string, readOnly bool) (*DiskI
 		},
 	}
 	if err := newNSError(nserrPtr); err != nil {
+		err.Release()
 		return nil, err
 	}
 	runtime.SetFinalizer(attachment, func(self *DiskImageStorageDeviceAttachment) {

@@ -157,6 +157,7 @@ func WithCreatingStorage(hardwareModel *MacHardwareModel) NewMacAuxiliaryStorage
 			),
 		}
 		if err := newNSError(nserrPtr); err != nil {
+			err.Release()
 			return err
 		}
 		return nil
@@ -290,6 +291,7 @@ func macOSRestoreImageCompletionHandler(cgoHandlerPtr, restoreImagePtr, errPtr u
 	}
 
 	if err := newNSError(errPtr); err != nil {
+		err.Release()
 		handler(restoreImage, err)
 	} else {
 		handler(restoreImage, nil)
@@ -437,6 +439,7 @@ func macOSInstallCompletionHandler(cgoHandlerPtr, errPtr unsafe.Pointer) {
 	defer cgoHandler.Delete()
 
 	if err := newNSError(errPtr); err != nil {
+		err.Release()
 		handler(err)
 	} else {
 		handler(nil)
