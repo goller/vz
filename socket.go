@@ -12,6 +12,7 @@ import (
 	"os"
 	"runtime"
 	"runtime/cgo"
+	"sync"
 	"unsafe"
 
 	"golang.org/x/sys/unix"
@@ -127,7 +128,14 @@ type VirtioSocketListener struct {
 	pointer
 }
 
-var shouldAcceptNewConnectionHandlers = map[unsafe.Pointer]func(conn *VirtioSocketConnection, err error) bool{}
+type newConnectionAcceptMap struct {
+	accept map[unsafe.Pointer]func(conn *VirtioSocketConnection, err error) bool
+	sync.RWMutex
+}
+
+var acceptNewConnections = newConnectionAcceptMap{
+	accept: map[unsafe.Pointer]func(conn *VirtioSocketConnection, err error) bool{},
+}
 
 // NewVirtioSocketListener creates a new VirtioSocketListener with connection handler.
 //
@@ -148,7 +156,10 @@ func NewVirtioSocketListener(handler func(conn *VirtioSocketConnection, err erro
 		},
 	}
 
-	shouldAcceptNewConnectionHandlers[ptr] = func(conn *VirtioSocketConnection, err error) bool {
+	acceptNewConnections.Lock()
+	defer acceptNewConnections.Unlock()
+
+	acceptNewConnections.accept[ptr] = func(conn *VirtioSocketConnection, err error) bool {
 		go handler(conn, err)
 		return true // must be connected
 	}
@@ -161,8 +172,10 @@ func shouldAcceptNewConnectionHandler(listenerPtr, connPtr, devicePtr unsafe.Poi
 	_ = devicePtr // NOTO(codehex): Is this really required? How to use?
 
 	// see: startHandler
+	acceptNewConnections.RLock()
+	defer acceptNewConnections.RUnlock()
 	conn, err := newVirtioSocketConnection(connPtr)
-	return (C.bool)(shouldAcceptNewConnectionHandlers[listenerPtr](conn, err))
+	return (C.bool)(acceptNewConnections.accept[listenerPtr](conn, err))
 }
 
 // VirtioSocketConnection is a port-based connection between the guest operating system and the host computer.
