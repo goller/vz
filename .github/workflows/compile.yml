@@ -4,8 +4,6 @@ on:
     paths-ignore:
       - example/**
       - README.md
-    branches:
-      - "master"
   pull_request:
     paths-ignore:
       - example/**
