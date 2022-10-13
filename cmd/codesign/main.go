@@ -57,6 +57,7 @@ func run() error {
 	testcmd.Stdout = os.Stdout
 	testcmd.Stderr = os.Stderr
 	testcmd.Stdin = os.Stdin
+	testcmd.Env = os.Environ()
 
 	return testcmd.Run()
 }
