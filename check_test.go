@@ -36,6 +36,8 @@ func TestVM(t *testing.T) {
 		t.Fatal("cannot start")
 	}
 	m.Start(func(err error) {
-		t.Error(err)
+		if err == nil {
+			t.Fatal("Start() did not return an error")
+		}
 	})
 }
