@@ -9,6 +9,7 @@ package vz
 */
 import "C"
 import (
+	"fmt"
 	"runtime/cgo"
 	"sync"
 	"unsafe"
@@ -224,6 +225,7 @@ func (v *VirtualMachine) CanStop() bool {
 
 //export virtualMachineCompletionHandler
 func virtualMachineCompletionHandler(cgoHandlerPtr, errPtr unsafe.Pointer) {
+	fmt.Println(">virtualMachineCompletionHandler")
 	cgoHandler := *(*cgo.Handle)(cgoHandlerPtr)
 
 	handler := cgoHandler.Value().(func(error))
@@ -233,6 +235,7 @@ func virtualMachineCompletionHandler(cgoHandlerPtr, errPtr unsafe.Pointer) {
 	} else {
 		handler(nil)
 	}
+	fmt.Println("<virtualMachineCompletionHandler")
 }
 
 func makeHandler() (func(error), chan error) {
@@ -278,7 +281,10 @@ func (v *VirtualMachine) Start(opts ...VirtualMachineStartOption) error {
 	} else {
 		C.startWithCompletionHandler(objc.Ptr(v), v.dispatchQueue, unsafe.Pointer(&handler))
 	}
-	return <-errCh
+	fmt.Println("reading from error channel")
+	err := <-errCh
+	fmt.Printf("read %v\n", err)
+	return err
 }
 
 // Pause a virtual machine that is in Running state.

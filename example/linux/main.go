@@ -4,7 +4,6 @@ import (
 	l "log"
 	"os"
 	"os/signal"
-	"strings"
 	"syscall"
 
 	"github.com/Code-Hex/vz/v3"
@@ -44,22 +43,19 @@ func main() {
 	defer file.Close()
 	log = l.New(file, "", l.LstdFlags)
 
-	kernelCommandLineArguments := []string{
-		// Use the first virtio console device as system console.
-		"console=hvc0",
-		// Stop in the initial ramdisk before attempting to transition to
-		// the root file system.
-		"root=/dev/vda",
+	nvram, err := os.CreateTemp("", "vzNVRAM")
+	if err != nil {
+		log.Fatalf("failed to create temporary file for NVRAM storage: %s", err)
 	}
+	_ = nvram.Close()
+	defer os.Remove(nvram.Name())
 
-	vmlinuz := os.Getenv("VMLINUZ_PATH")
-	initrd := os.Getenv("INITRD_PATH")
-	diskPath := os.Getenv("DISKIMG_PATH")
-
-	bootLoader, err := vz.NewLinuxBootLoader(
-		vmlinuz,
-		vz.WithCommandLine(strings.Join(kernelCommandLineArguments, " ")),
-		vz.WithInitrd(initrd),
+	efiVariableStore, err := vz.NewEFIVariableStore(nvram.Name())
+	if err != nil {
+		log.Fatalf("failed to load EFI variable store: %s", err)
+	}
+	bootLoader, err := vz.NewEFIBootLoader(
+		vz.WithEFIVariableStore(efiVariableStore),
 	)
 	if err != nil {
 		log.Fatalf("bootloader creation failed: %s", err)
@@ -117,20 +113,22 @@ func main() {
 		entropyConfig,
 	})
 
-	diskImageAttachment, err := vz.NewDiskImageStorageDeviceAttachment(
-		diskPath,
-		false,
-	)
-	if err != nil {
-		log.Fatal(err)
-	}
-	storageDeviceConfig, err := vz.NewVirtioBlockDeviceConfiguration(diskImageAttachment)
-	if err != nil {
-		log.Fatalf("Block device creation failed: %s", err)
-	}
-	config.SetStorageDevicesVirtualMachineConfiguration([]vz.StorageDeviceConfiguration{
-		storageDeviceConfig,
-	})
+	/*
+		diskImageAttachment, err := vz.NewDiskImageStorageDeviceAttachment(
+			diskPath,
+			false,
+		)
+		if err != nil {
+			log.Fatal(err)
+		}
+		storageDeviceConfig, err := vz.NewVirtioBlockDeviceConfiguration(diskImageAttachment)
+		if err != nil {
+			log.Fatalf("Block device creation failed: %s", err)
+		}
+		config.SetStorageDevicesVirtualMachineConfiguration([]vz.StorageDeviceConfiguration{
+			storageDeviceConfig,
+		})
+	*/
 
 	// traditional memory balloon device which allows for managing guest memory. (optional)
 	memoryBalloonDevice, err := vz.NewVirtioTraditionalMemoryBalloonDeviceConfiguration()
