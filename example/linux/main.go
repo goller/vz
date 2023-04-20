@@ -90,6 +90,16 @@ func main() {
 		consoleConfig,
 	})
 
+	// private API test
+	uartAttachment, err := vz.NewFileSerialPortAttachment("uart16550.log", false)
+	if err != nil {
+		log.Fatalf("UART serial port attachment creation failed: %s", err)
+	}
+	_, err = vz.New16550SerialPortConfiguration(uartAttachment)
+	if err != nil {
+		log.Fatalf("Failed to create UART serial port configuration: %s", err)
+	}
+
 	// network
 	natAttachment, err := vz.NewNATNetworkDeviceAttachment()
 	if err != nil {
