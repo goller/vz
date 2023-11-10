@@ -20,7 +20,7 @@
                             untilDate:[NSDate distantFuture]
                                inMode:NSDefaultRunLoopMode
                               dequeue:YES];
-            // NSLog(@"event: %@", event);
+            //NSLog(@"event: %@", event);
             [self sendEvent:event];
             [self updateWindows];
         } while (shouldKeepRunning);
@@ -30,6 +30,7 @@
 - (void)terminate:(id)sender
 {
     shouldKeepRunning = NO;
+    NSLog(@"terminate");
 
     // We should call this method if we want to use `applicationWillTerminate` method.
     //
@@ -173,10 +174,14 @@ API_AVAILABLE(macos(12.0))
 @implementation VMStateObserver
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context;
 {
+    NSLog(@"observeValueForKeyPath context %@", context);
     if ([keyPath isEqualToString:@"state"]) {
         int newState = (int)[change[NSKeyValueChangeNewKey] integerValue];
+        NSLog(@"observeValueForKeyPath newState %d", newState);
         if (newState == VZVirtualMachineStateStopped || newState == VZVirtualMachineStateError) {
+            NSLog(@"observeValueForKeyPath terminating");
             [NSApp performSelectorOnMainThread:@selector(terminate:) withObject:context waitUntilDone:NO];
+            NSLog(@"removing observer %@ from %@ (%@)", self, object, self);
             [object removeObserver:self forKeyPath:@"state"];
         }
     }
@@ -203,6 +208,8 @@ API_AVAILABLE(macos(12.0))
            forKeyPath:@"state"
               options:NSKeyValueObservingOptionNew
               context:(void *)self];
+    NSLog(@"adding observer %@ with %@ as context", _observer, self);
+
 
     // Setup virtual machine view configs
     VZVirtualMachineView *view = [[[VZVirtualMachineView alloc] init] autorelease];
