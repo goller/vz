@@ -28,4 +28,5 @@ API_AVAILABLE(macos(12.0))
 - (instancetype)initWithVirtualMachine:(VZVirtualMachine *)virtualMachine
                            windowWidth:(CGFloat)windowWidth
                           windowHeight:(CGFloat)windowHeight;
+- (void) dealloc;
 @end

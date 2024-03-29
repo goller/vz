@@ -181,8 +181,6 @@ API_AVAILABLE(macos(12.0))
         if (newState == VZVirtualMachineStateStopped || newState == VZVirtualMachineStateError) {
             NSLog(@"observeValueForKeyPath terminating");
             [NSApp performSelectorOnMainThread:@selector(terminate:) withObject:context waitUntilDone:NO];
-            NSLog(@"removing observer %@ from %@ (%@)", self, object, self);
-            [object removeObserver:self forKeyPath:@"state"];
         }
     }
 }
@@ -229,17 +227,27 @@ API_AVAILABLE(macos(12.0))
     return self;
 }
 
+// this could also go in dealloc for VZVirtualMachineView, but the _observer field would need to be moved there
+-(void)dealloc {
+    NSLog(@"dealloc'ing AppDelegate");
+    [_virtualMachine removeObserver:_observer forKeyPath:@"state"];
+    [_observer release]; _observer = nil;
+    [super dealloc];
+}
+
 /* IMPORTANT: delegate methods are called from VM's queue */
 - (void)guestDidStopVirtualMachine:(VZVirtualMachine *)virtualMachine
 {
     [NSApp performSelectorOnMainThread:@selector(terminate:) withObject:self waitUntilDone:NO];
 }
 
+/*
 - (void)virtualMachine:(VZVirtualMachine *)virtualMachine didStopWithError:(NSError *)error
 {
     NSLog(@"VM %@ didStopWithError: %@", virtualMachine, error);
     [NSApp performSelectorOnMainThread:@selector(terminate:) withObject:self waitUntilDone:NO];
 }
+*/
 
 - (void)applicationDidFinishLaunching:(NSNotification *)notification
 {
